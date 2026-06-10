@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenly — Carbon Calculator</title>
+  <meta name="description" content="A zero-preset step-by-step calculator that dynamically visualizes your carbon footprint. Offset emissions with daily habits and download your color-coded PDF report.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="page-calculator">
+
+  <!-- Swaying Falling Leaf Page Transition Curtain -->
+  <div id="transition-curtain" class="transition-curtain" aria-hidden="true">
+    <div class="falling-leaf-container">
+      <svg class="falling-leaf-svg" viewBox="0 0 100 100">
+        <path d="M50,15 C65,35 65,65 50,85 C35,65 35,35 50,15 Z" fill="#1E382A"/>
+        <path d="M50,15 L50,85" stroke="#FAF6EE" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="curtain-body"></div>
+  </div>
+
+  <!-- Header Component -->
+  <header class="app-header">
+    <div class="header-container container">
+      <a href="index.html" class="logo text-decoration-none nav-transition">
+        <span class="logo-text">Greenly</span>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link nav-transition">Home</a>
+        <a href="calculator.html" class="nav-link active nav-transition">Calculator</a>
+        <a href="tasks.html" class="nav-link nav-transition">Daily Actions</a>
+        <a href="projects.html" class="nav-link nav-transition">Ecosystem Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Core Calculator Dashboard Section -->
+  <section class="dashboard-section container wizard-main-section">
+    <div class="wizard-intro-header text-center">
+      <span class="hero-tagline">Calculate & Audit</span>
+      <h1 class="font-serif-premium">Measure Your Footprint</h1>
+      <p class="section-desc">Complete the panels below to assess your carbon score. Adjusting any slider will instantly trigger the footprint visualizer.</p>
+    </div>
+
+    <div class="dashboard-grid">
+      
+      <!-- LEFT: Step-by-Step Wizard Form -->
+      <div class="dashboard-card calculator-card organic-leaf-panel">
+        
+        <!-- Step Progress Tracker -->
+        <div class="wizard-steps-indicator" role="navigation">
+          <div class="step-indicator active" data-step="1">
+            <span class="step-num">1</span>
+            <span class="step-label">Transport</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-indicator" data-step="2">
+            <span class="step-num">2</span>
+            <span class="step-label">Energy</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-indicator" data-step="3">
+            <span class="step-num">3</span>
+            <span class="step-label">Diet</span>
+          </div>
+          <div class="step-line"></div>
+          <div class="step-indicator" data-step="4">
+            <span class="step-num">4</span>
+            <span class="step-label">Goods</span>
+          </div>
+        </div>
+
+        <form id="calc-form" class="calc-content" onsubmit="event.preventDefault();">
+          
+          <!-- STEP 1 PANEL: Transport -->
+          <div class="wizard-panel active" id="wizard-step-1">
+            <h3 class="wizard-panel-title">How do you travel?</h3>
+            <p class="wizard-panel-desc">Transit and flights leave deep impressions. Record your travel metrics below.</p>
+
+            <div class="input-group">
+              <div class="label-row">
+                <label for="car-km">Car Commuting (km / week)</label>
+                <span class="value-display zero-state" id="car-km-val">0 km</span>
+              </div>
+              <input type="range" id="car-km" min="0" max="1000" value="0" class="slider zero-preset">
+            </div>
+
+            <div class="input-group">
+              <label>Car Engine Type</label>
+              <div class="radio-grid">
+                <label class="radio-card">
+                  <input type="radio" name="engine-type" value="gasoline" checked>
+                  <span class="radio-content">
+                    <span class="radio-title">Gasoline / Diesel</span>
+                    <span class="radio-desc">Fossil fuel baseline</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="engine-type" value="hybrid">
+                  <span class="radio-content">
+                    <span class="radio-title">Hybrid</span>
+                    <span class="radio-desc">Increased efficiency</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="engine-type" value="electric">
+                  <span class="radio-content">
+                    <span class="radio-title">Electric</span>
+                    <span class="radio-desc">Zero direct emissions</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <div class="label-row">
+                <label for="transit-km">Public Transit (Bus / Train - km / week)</label>
+                <span class="value-display zero-state" id="transit-km-val">0 km</span>
+              </div>
+              <input type="range" id="transit-km" min="0" max="500" value="0" class="slider zero-preset">
+            </div>
+
+            <div class="input-group">
+              <div class="label-row">
+                <label for="flights-hours">Flights Taken (hours / year)</label>
+                <span class="value-display zero-state" id="flights-hours-val">0 hours</span>
+              </div>
+              <input type="range" id="flights-hours" min="0" max="100" value="0" class="slider zero-preset">
+            </div>
+
+            <div class="wizard-nav-buttons">
+              <span></span>
+              <button type="button" class="btn btn-primary next-step-btn">Next Step →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2 PANEL: Energy -->
+          <div class="wizard-panel" id="wizard-step-2">
+            <h3 class="wizard-panel-title">How is your household powered?</h3>
+            <p class="wizard-panel-desc">Household electricity grids and heating generate significant carbon metrics.</p>
+
+            <div class="input-group">
+              <div class="label-row">
+                <label for="electricity-kwh">Electricity Usage (kWh / month)</label>
+                <span class="value-display zero-state" id="electricity-kwh-val">0 kWh</span>
+              </div>
+              <input type="range" id="electricity-kwh" min="0" max="1000" value="0" class="slider zero-preset">
+              <p class="input-hint">Average home is ~300 kWh/month</p>
+            </div>
+
+            <div class="input-group">
+              <div class="label-row">
+                <label for="clean-energy-pct">Percentage Clean Energy (Solar/Wind)</label>
+                <span class="value-display zero-state" id="clean-energy-pct-val">0%</span>
+              </div>
+              <input type="range" id="clean-energy-pct" min="0" max="100" value="0" class="slider zero-preset">
+            </div>
+
+            <div class="input-group">
+              <label>Heating Source</label>
+              <div class="radio-grid">
+                <label class="radio-card">
+                  <input type="radio" name="heating-source" value="gas" checked>
+                  <span class="radio-content">
+                    <span class="radio-title">Natural Gas</span>
+                    <span class="radio-desc">Fossil fuel heating</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="heating-source" value="electric">
+                  <span class="radio-content">
+                    <span class="radio-title">Heat Pump</span>
+                    <span class="radio-desc">Electric powered</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="heating-source" value="biomass">
+                  <span class="radio-content">
+                    <span class="radio-title">Biomass / Wood</span>
+                    <span class="radio-desc">Carbon-neutral cycle</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="wizard-nav-buttons">
+              <button type="button" class="btn btn-secondary prev-step-btn">← Previous</button>
+              <button type="button" class="btn btn-primary next-step-btn">Next Step →</button>
+            </div>
+          </div>
+
+          <!-- STEP 3 PANEL: Diet -->
+          <div class="wizard-panel" id="wizard-step-3">
+            <h3 class="wizard-panel-title">What are your diet habits?</h3>
+            <p class="wizard-panel-desc">Beef processing and imported foods demand heavy resources.</p>
+
+            <div class="input-group">
+              <label>Primary Food Selections</label>
+              <div class="radio-grid vertical">
+                <label class="radio-card">
+                  <input type="radio" name="diet-type" value="meat-heavy" checked>
+                  <span class="radio-content">
+                    <span class="radio-title">Heavy Meat Eater</span>
+                    <span class="radio-desc">Regularly consume beef, pork, lamb, and poultry</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="diet-type" value="meat-light">
+                  <span class="radio-content">
+                    <span class="radio-title">Average / Low-Meat</span>
+                    <span class="radio-desc">Limit red meat, poultry/fish prioritized</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="diet-type" value="vegetarian">
+                  <span class="radio-content">
+                    <span class="radio-title">Vegetarian</span>
+                    <span class="radio-desc">No meat, consume dairy, eggs, and cheese</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="diet-type" value="vegan">
+                  <span class="radio-content">
+                    <span class="radio-title">Vegan</span>
+                    <span class="radio-desc">100% plant-based food structures</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Food Transport / Sourcing</label>
+              <div class="select-wrapper">
+                <select id="food-source" class="select-input">
+                  <option value="mostly-global">Mostly global / imported foods</option>
+                  <option value="balanced" selected>Average mix of local & imported</option>
+                  <option value="mostly-local">Local farmers market / seasonal only</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="wizard-nav-buttons">
+              <button type="button" class="btn btn-secondary prev-step-btn">← Previous</button>
+              <button type="button" class="btn btn-primary next-step-btn">Next Step →</button>
+            </div>
+          </div>
+
+          <!-- STEP 4 PANEL: Goods & Waste -->
+          <div class="wizard-panel" id="wizard-step-4">
+            <h3 class="wizard-panel-title">How do you buy and discard items?</h3>
+            <p class="wizard-panel-desc">New product manufacturing and landfill practices dictating waste ratios.</p>
+
+            <div class="input-group">
+              <label>Shopping frequency</label>
+              <div class="radio-grid">
+                <label class="radio-card">
+                  <input type="radio" name="lifestyle" value="high" checked>
+                  <span class="radio-content">
+                    <span class="radio-title">Frequent</span>
+                    <span class="radio-desc">Buy new clothes & electronics often</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="lifestyle" value="moderate">
+                  <span class="radio-content">
+                    <span class="radio-title">Moderate</span>
+                    <span class="radio-desc">Essentials with occasional purchases</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="lifestyle" value="minimal">
+                  <span class="radio-content">
+                    <span class="radio-title">Minimalist</span>
+                    <span class="radio-desc">Second-hand items, repair over replace</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Recycling & Composting</label>
+              <div class="radio-grid">
+                <label class="radio-card">
+                  <input type="radio" name="recycling" value="none">
+                  <span class="radio-content">
+                    <span class="radio-title">Minimal</span>
+                    <span class="radio-desc">Direct disposal to landfill bins</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="recycling" value="some" checked>
+                  <span class="radio-content">
+                    <span class="radio-title">Basic</span>
+                    <span class="radio-desc">Separate clean tins, paper, and plastic</span>
+                  </span>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="recycling" value="full">
+                  <span class="radio-content">
+                    <span class="radio-title">Dedicated</span>
+                    <span class="radio-desc">Recycle and compost organic food scraps</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="wizard-nav-buttons">
+              <button type="button" class="btn btn-secondary prev-step-btn">← Previous</button>
+              <button type="button" class="btn btn-primary finish-wizard-btn">View Footprint Summary</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT: Interactive Footprint Status & Visualizer -->
+      <div class="dashboard-card visualizer-card organic-leaf-panel glass-glow-card">
+        <div class="visualizer-header">
+          <h2>Footprint Score</h2>
+          <span class="status-indicator-badge" id="status-badge">PRISTINE</span>
+        </div>
+
+        <!-- Footprint SVG inside custom arch -->
+        <div class="svg-container glassmorphic-arch">
+          <div class="footprint-svg-wrapper" id="footprint-wrapper">
+            <svg id="footprint-svg" viewBox="0 0 100 135" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad-green" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#A2C5A9" />
+                  <stop offset="100%" stop-color="#4E6D53" />
+                </linearGradient>
+                <linearGradient id="grad-clay" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#E9C46A" />
+                  <stop offset="100%" stop-color="#D4A373" />
+                </linearGradient>
+                <linearGradient id="grad-heavy" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#C25953" />
+                  <stop offset="100%" stop-color="#5A1A1A" />
+                </linearGradient>
+                
+                <filter id="cracked-filter">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+                  <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+                </filter>
+              </defs>
+
+              <g id="footprint-group" class="state-pristine" style="opacity: 0.15; transform: scale(0.8); transform-origin: center;">
+                <path id="foot-sole" d="M42,118 C33,118 31,105 32,92 C33,78 40,73 39,59 C38,45 28,42 30,28 C32,16 46,12 56,16 C66,19 68,31 65,47 C62,63 56,83 55,103 C54,113 51,118 42,118 Z" fill="#888" />
+                <ellipse id="toe-1" cx="32" cy="10" rx="6" ry="7" fill="#888" />
+                <ellipse id="toe-2" cx="43" cy="8" rx="4.5" ry="5.0" fill="#888" />
+                <ellipse id="toe-3" cx="52" cy="9" rx="4.0" ry="4.5" fill="#888" />
+                <ellipse id="toe-4" cx="60" cy="12" rx="3.5" ry="4.0" fill="#888" />
+                <ellipse id="toe-5" cx="67" cy="18" rx="3.0" ry="3.5" fill="#888" />
+              </g>
+            </svg>
+            <div id="visual-overlay" class="visual-effects-overlay"></div>
+          </div>
+        </div>
+
+        <div class="carbon-score-display">
+          <span class="score-label">Annual Emission Rating</span>
+          <div class="score-value">
+            <span id="score-num">0.00</span>
+            <span class="score-unit">tonnes CO<sub>2</sub>e</span>
+          </div>
+          <p class="score-comparison" id="comparison-text">Start adjusting inputs on the left to measure your footprint.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <p class="footer-logo">Greenly</p>
+        <p class="footer-tagline">Small steps lead to huge journeys.</p>
+      </div>
+      <div class="footer-right">
+        <p>&copy; 2026 Greenly. Static project. Made with love for the Earth.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- DYNAMIC HIDDEN PRINT REPORT -->
+  <div id="print-report" class="print-only">
+    <div class="print-header">
+      <span class="print-logo">Greenly Audit</span>
+      <span class="print-date" id="print-date">June 2026</span>
+    </div>
+    
+    <div class="print-hero">
+      <h1>Carbon Footprint Audit Report</h1>
+      <p class="print-subtitle">A personalized solution-based analysis of your ecological impact and path forward.</p>
+    </div>
+
+    <!-- Score Card Overview -->
+    <div class="print-score-card">
+      <div class="print-score-left">
+        <span class="label">Calculated Footprint Score</span>
+        <div class="value"><span id="print-score-num">0.00</span> tonnes CO2e/year</div>
+        <div id="print-rating" class="badge">PRISTINE</div>
+      </div>
+      <div class="print-score-right">
+        <div class="print-comparison" id="print-comparison-text">Start adjusting inputs on the left to measure your footprint.</div>
+      </div>
+    </div>
+
+    <!-- Category Solutions and statuses -->
+    <div class="print-section">
+      <h2>Category Audit & Solutions</h2>
+      <div class="print-categories-list">
+        
+        <!-- Category: Transport -->
+        <div class="print-category-card" id="print-card-transport">
+          <div class="print-category-header">
+            <span class="print-category-name">Transportation</span>
+            <span class="print-category-status-badge" id="print-badge-transport">GOOD</span>
+          </div>
+          <div class="print-category-body">
+            <p><strong>Emissions:</strong> <span id="print-transport-val">0.00</span> tonnes CO2e/year</p>
+            <p class="print-category-solution" id="print-solution-transport">Maintain low travel emissions.</p>
+          </div>
+        </div>
+
+        <!-- Category: Energy -->
+        <div class="print-category-card" id="print-card-energy">
+          <div class="print-category-header">
+            <span class="print-category-name">Household Energy</span>
+            <span class="print-category-status-badge" id="print-badge-energy">GOOD</span>
+          </div>
+          <div class="print-category-body">
+            <p><strong>Emissions:</strong> <span id="print-energy-val">0.00</span> tonnes CO2e/year</p>
+            <p class="print-category-solution" id="print-solution-energy">Maintain low household power emissions.</p>
+          </div>
+        </div>
+
+        <!-- Category: Diet -->
+        <div class="print-category-card" id="print-card-diet">
+          <div class="print-category-header">
+            <span class="print-category-name">Diet & Sourcing</span>
+            <span class="print-category-status-badge" id="print-badge-diet">GOOD</span>
+          </div>
+          <div class="print-category-body">
+            <p><strong>Emissions:</strong> <span id="print-diet-val">0.00</span> tonnes CO2e/year</p>
+            <p class="print-category-solution" id="print-solution-diet">Maintain green plant-based diet standards.</p>
+          </div>
+        </div>
+
+        <!-- Category: Goods -->
+        <div class="print-category-card" id="print-card-waste">
+          <div class="print-category-header">
+            <span class="print-category-name">Goods & Waste</span>
+            <span class="print-category-status-badge" id="print-badge-waste">GOOD</span>
+          </div>
+          <div class="print-category-body">
+            <p><strong>Emissions:</strong> <span id="print-waste-val">0.00</span> tonnes CO2e/year</p>
+            <p class="print-category-solution" id="print-solution-waste">Maintain low consumer waste emissions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTPRINT SUMMARY MODAL -->
+  <div id="summary-modal" class="summary-modal" aria-hidden="true">
+    <div class="summary-modal-backdrop"></div>
+    <div class="summary-modal-content organic-leaf-panel">
+      <button class="summary-modal-close" id="close-summary-btn" aria-label="Close Summary">&times;</button>
+      
+      <div class="summary-modal-header text-center">
+        <span class="hero-tagline">Your Environmental Audit</span>
+        <h2 class="font-serif-premium">Audit Summary</h2>
+      </div>
+      
+      <div class="summary-modal-body">
+        <!-- Main Score Row -->
+        <div class="summary-score-overview">
+          <div class="summary-score-large">
+            <span id="summary-total-score">0.00</span>
+            <span class="unit">tonnes CO<sub>2</sub>e / year</span>
+          </div>
+          <span class="status-indicator-badge" id="summary-status-badge">PRISTINE</span>
+        </div>
+        
+        <p class="summary-comparison-text text-center" id="summary-comparison-text">
+          Adjust inputs to calculate your detailed audit breakdown.
+        </p>
+        
+        <!-- Sector Bars Grid -->
+        <div class="summary-sectors-grid">
+          <!-- Sector 1: Transport -->
+          <div class="summary-sector-row">
+            <div class="summary-sector-info">
+              <span class="sector-name">Transportation</span>
+              <span class="sector-score-val"><span id="summary-val-transport">0.00</span> t</span>
+            </div>
+            <div class="summary-progress-bg">
+              <div class="summary-progress-bar" id="summary-bar-transport" style="width: 0%"></div>
+            </div>
+            <p class="summary-sector-tip" id="summary-tip-transport">Swap driving for public transit or cycling commutes.</p>
+          </div>
+          
+          <!-- Sector 2: Energy -->
+          <div class="summary-sector-row">
+            <div class="summary-sector-info">
+              <span class="sector-name">Household Energy</span>
+              <span class="sector-score-val"><span id="summary-val-energy">0.00</span> t</span>
+            </div>
+            <div class="summary-progress-bg">
+              <div class="summary-progress-bar" id="summary-bar-energy" style="width: 0%"></div>
+            </div>
+            <p class="summary-sector-tip" id="summary-tip-energy">Install LED lights, adjust thermostats, and unplug devices.</p>
+          </div>
+          
+          <!-- Sector 3: Diet -->
+          <div class="summary-sector-row">
+            <div class="summary-sector-info">
+              <span class="sector-name">Diet & Sourcing</span>
+              <span class="sector-score-val"><span id="summary-val-diet">0.00</span> t</span>
+            </div>
+            <div class="summary-progress-bg">
+              <div class="summary-progress-bar" id="summary-bar-diet" style="width: 0%"></div>
+            </div>
+            <p class="summary-sector-tip" id="summary-tip-diet">Reduce meat intake by eating plant-based meals 3 days a week.</p>
+          </div>
+          
+          <!-- Sector 4: Goods & Waste -->
+          <div class="summary-sector-row">
+            <div class="summary-sector-info">
+              <span class="sector-name">Goods & Waste</span>
+              <span class="sector-score-val"><span id="summary-val-waste">0.00</span> t</span>
+            </div>
+            <div class="summary-progress-bg">
+              <div class="summary-progress-bar" id="summary-bar-waste" style="width: 0%"></div>
+            </div>
+            <p class="summary-sector-tip" id="summary-tip-waste">Diligent recycling and organic composting to reduce landfill.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="summary-modal-footer">
+        <button type="button" id="download-report-btn" class="btn btn-primary btn-large">
+          <svg class="icon-download" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Download PDF Audit Report
+        </button>
+        <a href="tasks.html" class="btn btn-secondary btn-large nav-transition">Start Daily Actions</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript File -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenly — Step Lightly</title>
+  <meta name="description" content="An organic carbon footprint tracker. Measure and audit your footprint across transport, household power, diet, and goods.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="page-home">
+
+  <!-- Swaying Falling Leaf Page Transition Curtain -->
+  <div id="transition-curtain" class="transition-curtain" aria-hidden="true">
+    <div class="falling-leaf-container">
+      <svg class="falling-leaf-svg" viewBox="0 0 100 100">
+        <path d="M50,15 C65,35 65,65 50,85 C35,65 35,35 50,15 Z" fill="#1E382A"/>
+        <path d="M50,15 L50,85" stroke="#FAF6EE" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="curtain-body"></div>
+  </div>
+
+  <!-- Header Component -->
+  <header class="app-header">
+    <div class="header-container container">
+      <a href="index.html" class="logo text-decoration-none nav-transition">
+        <span class="logo-text">Greenly</span>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link active nav-transition">Home</a>
+        <a href="calculator.html" class="nav-link nav-transition">Calculator</a>
+        <a href="tasks.html" class="nav-link nav-transition">Daily Actions</a>
+        <a href="projects.html" class="nav-link nav-transition">Ecosystem Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Portal Section (Text-on-Image Side Overlay) -->
+  <section class="hero-section landing-hero container">
+    <div class="hero-editorial-banner">
+      <img src="assets/hero_nature.png" alt="Sleek green botanical leaves in soft light shadows" class="hero-banner-img">
+      <div class="hero-editorial-overlay">
+        <span class="hero-tagline">AN ORGANIC SCALER</span>
+        <h1 class="font-serif-premium hero-large-title">Step Lightly on the Earth</h1>
+        <p class="hero-desc-text">
+          Every journey leaves a path behind it. Discover the weight of your everyday actions and begin tracking your carbon footprint with our fluid, zero-preset ecological visualizer.
+        </p>
+        <div class="hero-actions-container justify-left">
+          <a href="calculator.html" class="btn btn-primary btn-large nav-transition">Open Calculator</a>
+          <a href="#sectors-directory" class="btn btn-secondary btn-large">Explore Steps</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: 4-Step Calculator Directory Grid (Roman numerals - Clarified descriptions) -->
+  <section id="sectors-directory" class="sectors-directory-section container">
+    <div class="section-header text-center">
+      <h2>Select an Emission Sector</h2>
+      <p class="section-desc">Click any step below to launch and audit that segment of our unified 4-step carbon footprint calculator.</p>
+    </div>
+    
+    <div class="sectors-grid">
+      <!-- Sector 1: Transport -->
+      <a href="calculator.html?step=1" class="sector-card sector-card-transport organic-leaf-panel clickable-card text-decoration-none nav-transition">
+        <div class="sector-tag-row">
+          <span class="sector-step-tag">Step I of IV</span>
+          <span class="sector-roman">I</span>
+        </div>
+        <h3>Transportation</h3>
+        <p>Measure your annual travel impact. Sliders capture weekly car mileage, engine fuel types (gas/hybrid/electric), flights, and public transit.</p>
+        <span class="sector-action-link">Open Step I →</span>
+      </a>
+
+      <!-- Sector 2: Energy -->
+      <a href="calculator.html?step=2" class="sector-card sector-card-energy organic-leaf-panel clickable-card text-decoration-none nav-transition">
+        <div class="sector-tag-row">
+          <span class="sector-step-tag">Step II of IV</span>
+          <span class="sector-roman">II</span>
+        </div>
+        <h3>Household Energy</h3>
+        <p>Calculate your home utility footprints. Tracks electricity usage, solar/wind offsets, and clean heat pump ratios.</p>
+        <span class="sector-action-link">Open Step II →</span>
+      </a>
+
+      <!-- Sector 3: Diet -->
+      <a href="calculator.html?step=3" class="sector-card sector-card-diet organic-leaf-panel clickable-card text-decoration-none nav-transition">
+        <div class="sector-tag-row">
+          <span class="sector-step-tag">Step III of IV</span>
+          <span class="sector-roman">III</span>
+        </div>
+        <h3>Diet & Sourcing</h3>
+        <p>Evaluate your food choice emissions. Compiles scores based on meat consumption levels and global import distances.</p>
+        <span class="sector-action-link">Open Step III →</span>
+      </a>
+
+      <!-- Sector 4: Goods -->
+      <a href="calculator.html?step=4" class="sector-card sector-card-waste organic-leaf-panel clickable-card text-decoration-none nav-transition">
+        <div class="sector-tag-row">
+          <span class="sector-step-tag">Step IV of IV</span>
+          <span class="sector-roman">IV</span>
+        </div>
+        <h3>Goods & Waste</h3>
+        <p>Assess your consumer waste profile. Audits new appliance purchases, clothing buying habits, recycling, and composting.</p>
+        <span class="sector-action-link">Open Step IV →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <p class="footer-logo">Greenly</p>
+        <p class="footer-tagline">Small steps lead to huge journeys.</p>
+      </div>
+      <div class="footer-right">
+        <p>&copy; 2026 Greenly. Static project. Made with love for the Earth.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="app.js"></script>
+</body>
+</html>

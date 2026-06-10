@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenly — Daily Tasks</title>
+  <meta name="description" content="Check off your daily tasks to immediately lower your carbon footprint score. Track your current standing and save CO2.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="page-tasks">
+
+  <!-- Swaying Falling Leaf Page Transition Curtain -->
+  <div id="transition-curtain" class="transition-curtain" aria-hidden="true">
+    <div class="falling-leaf-container">
+      <svg class="falling-leaf-svg" viewBox="0 0 100 100">
+        <path d="M50,15 C65,35 65,65 50,85 C35,65 35,35 50,15 Z" fill="#1E382A"/>
+        <path d="M50,15 L50,85" stroke="#FAF6EE" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="curtain-body"></div>
+  </div>
+
+  <!-- Header Component -->
+  <header class="app-header">
+    <div class="header-container container">
+      <a href="index.html" class="logo text-decoration-none nav-transition">
+        <span class="logo-text">Greenly</span>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link nav-transition">Home</a>
+        <a href="calculator.html" class="nav-link nav-transition">Calculator</a>
+        <a href="tasks.html" class="nav-link active nav-transition">Daily Actions</a>
+        <a href="projects.html" class="nav-link nav-transition">Ecosystem Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Title Banner -->
+  <section class="intro-banner container">
+    <div class="intro-content text-center">
+      <span class="hero-tagline">TODAY'S OPPORTUNITY</span>
+      <h1 class="font-serif-premium">Daily Actions to Do Better</h1>
+      <p class="section-desc">Small choices accumulate. Complete the checklist items below to immediately offset your calculated annual footprint in real-time.</p>
+    </div>
+  </section>
+
+  <!-- Daily Tasks Layout Grid -->
+  <section class="dashboard-section container">
+    <div class="dashboard-grid">
+      
+      <!-- LEFT: Daily Checklists -->
+      <div class="dashboard-card checklist-card organic-leaf-panel clickable-card">
+        <div class="card-header">
+          <h2>Today's Tasks</h2>
+          <p class="subtitle">Select actions you completed today to see offsets update</p>
+        </div>
+        
+        <!-- Dynamic Daily Eco Challenge -->
+        <div id="daily-challenge-container"></div>
+        
+        <div class="actions-list">
+          <label class="action-item">
+            <input type="checkbox" class="eco-checkbox" data-co2="0.60" id="task-travel">
+            <span class="checkbox-custom"></span>
+            <span class="action-details">
+              <span class="action-name">Walked, cycled, or rode transit instead of driving</span>
+              <span class="action-reward">Offsets ~0.60 kg CO2</span>
+            </span>
+          </label>
+          <label class="action-item">
+            <input type="checkbox" class="eco-checkbox" data-co2="0.30" id="task-diet">
+            <span class="checkbox-custom"></span>
+            <span class="action-details">
+              <span class="action-name">Substituted meat with a fully plant-based meal</span>
+              <span class="action-reward">Offsets ~0.30 kg CO2</span>
+            </span>
+          </label>
+          <label class="action-item">
+            <input type="checkbox" class="eco-checkbox" data-co2="0.15" id="task-unplug">
+            <span class="checkbox-custom"></span>
+            <span class="action-details">
+              <span class="action-name">Unplugged unused devices and electronics</span>
+              <span class="action-reward">Offsets ~0.15 kg CO2</span>
+            </span>
+          </label>
+          <label class="action-item">
+            <input type="checkbox" class="eco-checkbox" data-co2="0.20" id="task-drying">
+            <span class="checkbox-custom"></span>
+            <span class="action-details">
+              <span class="action-name">Line-dried clothes instead of using a dry cycling machine</span>
+              <span class="action-reward">Offsets ~0.20 kg CO2</span>
+            </span>
+          </label>
+          <label class="action-item">
+            <input type="checkbox" class="eco-checkbox" data-co2="0.25" id="task-shower">
+            <span class="checkbox-custom"></span>
+            <span class="action-details">
+              <span class="action-name">Took a short shower (under 5 minutes)</span>
+              <span class="action-reward">Offsets ~0.25 kg CO2</span>
+            </span>
+          </label>
+          <label class="action-item">
+            <input type="checkbox" class="eco-checkbox" data-co2="0.10" id="task-bags">
+            <span class="checkbox-custom"></span>
+            <span class="action-details">
+              <span class="action-name">Used reusable canvas bags and food containers</span>
+              <span class="action-reward">Offsets ~0.10 kg CO2</span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- RIGHT: Current Standing Summary Card -->
+      <div class="dashboard-card visualizer-card organic-leaf-panel glass-glow-card clickable-card">
+        <div class="visualizer-header">
+          <h2>Ecosystem Audit</h2>
+          <span class="status-indicator-badge" id="status-badge">PRISTINE</span>
+        </div>
+
+        <div class="standing-overview-container">
+          <div class="standing-item">
+            <span class="standing-label">Base Carbon Footprint</span>
+            <div class="standing-value" id="base-score">0.00 <span class="standing-unit">tonnes / year</span></div>
+          </div>
+          
+          <div class="standing-item">
+            <span class="standing-label">Carbon Offset Today</span>
+            <div class="standing-value accent-offset-text" id="offset-amount">0.00 <span class="standing-unit">kg CO2</span></div>
+          </div>
+          
+          <div class="standing-item total-result-standing">
+            <span class="standing-label">Net Carbon Footprint</span>
+            <div class="standing-value" id="net-score">0.00 <span class="standing-unit">tonnes / year</span></div>
+          </div>
+        </div>
+
+        <p class="score-comparison" id="comparison-text">Start adjusting inputs on the Calculator page to load your base standing score.</p>
+        <a href="calculator.html" class="btn btn-secondary nav-transition" style="margin-top: 24px; width: 100%; justify-content: center;">Open Calculator</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <p class="footer-logo">Greenly</p>
+        <p class="footer-tagline">Small steps lead to huge journeys.</p>
+      </div>
+      <div class="footer-right">
+        <p>&copy; 2026 Greenly. Static project. Made with love for the Earth.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="app.js"></script>
+</body>
+</html>

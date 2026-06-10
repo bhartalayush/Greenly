@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greenly — Ecosystem Projects</title>
+  <meta name="description" content="Support transparent global projects working to sequester carbon and restore ecosystems. Plant forests, advocate clean air, clean oceans, and offset emissions.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="page-projects">
+
+  <!-- Swaying Falling Leaf Page Transition Curtain -->
+  <div id="transition-curtain" class="transition-curtain" aria-hidden="true">
+    <div class="falling-leaf-container">
+      <svg class="falling-leaf-svg" viewBox="0 0 100 100">
+        <path d="M50,15 C65,35 65,65 50,85 C35,65 35,35 50,15 Z" fill="#1E382A"/>
+        <path d="M50,15 L50,85" stroke="#FAF6EE" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="curtain-body"></div>
+  </div>
+
+  <!-- Header Component -->
+  <header class="app-header">
+    <div class="header-container container">
+      <a href="index.html" class="logo text-decoration-none nav-transition">
+        <span class="logo-text">Greenly</span>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link nav-transition">Home</a>
+        <a href="calculator.html" class="nav-link nav-transition">Calculator</a>
+        <a href="tasks.html" class="nav-link nav-transition">Daily Actions</a>
+        <a href="projects.html" class="nav-link active nav-transition">Ecosystem Projects</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Title Banner -->
+  <section class="intro-banner container">
+    <div class="intro-content text-center">
+      <span class="hero-tagline">DIRECT IMPACT</span>
+      <h1 class="font-serif-premium">Ecosystem Restoration Projects</h1>
+      <p class="section-desc">Advocacy and contributions complement daily tracking. Click on any card below to visit and support transparent global environmental initiatives.</p>
+    </div>
+  </section>
+
+  <!-- Projects Grid (Clickable Cards) -->
+  <section class="ngo-section container" style="padding: 30px 0 100px 0;">
+    <div class="ngo-grid">
+      <!-- Team Trees -->
+      <a href="https://teamtrees.org" target="_blank" rel="noopener noreferrer" class="ngo-card text-decoration-none clickable-card">
+        <img class="ngo-visual-img" src="assets/reforestation.png" alt="Seedling planting in soil">
+        <div class="ngo-body">
+          <span class="ngo-category">Reforestation</span>
+          <h3>Team Trees</h3>
+          <p class="ngo-desc">Supports tree planting projects in areas affected by wildfire, deforestation, and habitat loss. Every dollar contributes directly to putting a seedling in the ground.</p>
+          <span class="ngo-link">
+            Support Project
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Clean Air Task Force -->
+      <a href="https://www.catf.us" target="_blank" rel="noopener noreferrer" class="ngo-card text-decoration-none clickable-card">
+        <img class="ngo-visual-img" src="assets/clean_air.png" alt="Wind turbines in grassy hills">
+        <div class="ngo-body">
+          <span class="ngo-category">Clean Technology</span>
+          <h3>Clean Air Task Force</h3>
+          <p class="ngo-desc">Funding clean energy research, grid modernization advocacy, and legal action to secure emission reduction policies worldwide.</p>
+          <span class="ngo-link">
+            Support Project
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- The Ocean Cleanup -->
+      <a href="https://theoceancleanup.com" target="_blank" rel="noopener noreferrer" class="ngo-card text-decoration-none clickable-card">
+        <img class="ngo-visual-img" src="assets/ocean_cleanup.png" alt="Ocean trash cleanup barrier">
+        <div class="ngo-body">
+          <span class="ngo-category">Ocean Protection</span>
+          <h3>The Ocean Cleanup</h3>
+          <p class="ngo-desc">Deploys mechanical ocean cleanup systems and river trash barriers to extract plastic waste before it reaches marine sanctuaries.</p>
+          <span class="ngo-link">
+            Support Project
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <!-- Wren -->
+      <a href="https://www.wren.co" target="_blank" rel="noopener noreferrer" class="ngo-card text-decoration-none clickable-card">
+        <img class="ngo-visual-img" src="assets/carbon_offset.png" alt="Sunlit mossy forest">
+        <div class="ngo-body">
+          <span class="ngo-category">Direct Offsets</span>
+          <h3>Wren Climate</h3>
+          <p class="ngo-desc">Allows users to purchase verified carbon offsets funding transparent agroforestry, rainforest protection, and clean cookstove creation.</p>
+          <span class="ngo-link">
+            Support Project
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <p class="footer-logo">Greenly</p>
+        <p class="footer-tagline">Small steps lead to huge journeys.</p>
+      </div>
+      <div class="footer-right">
+        <p>&copy; 2026 Greenly. Static project. Made with love for the Earth.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JavaScript File -->
+  <script src="app.js"></script>
+</body>
+</html>
