@@ -1,3 +1,4 @@
+'use strict';
 /*
 ========================================================================
    GREENLY CONTROL LOGIC & DYNAMIC INTERACTION ENGINE
@@ -24,6 +25,50 @@ const storage = {
     } catch (e) {}
   }
 };
+
+/**
+ * Safe parsing wrapper for calculator results from storage.
+ * Whitelists properties and enforces strict types to prevent prototype pollution.
+ * @returns {Object|null} whitelisted results object or null
+ */
+function loadCalculatorResults() {
+  const savedResults = storage.getItem('greenly_calculatorResults');
+  if (!savedResults) return null;
+  try {
+    const parsed = JSON.parse(savedResults);
+    if (parsed && typeof parsed === 'object') {
+      const results = {};
+      if (typeof parsed.totalScore === 'number' && !isNaN(parsed.totalScore)) {
+        results.totalScore = parsed.totalScore;
+      } else {
+        return null;
+      }
+      
+      results.sectors = {};
+      const sectorKeys = ['transport', 'energy', 'diet', 'waste'];
+      if (parsed.sectors && typeof parsed.sectors === 'object') {
+        for (const key of sectorKeys) {
+          const val = parsed.sectors[key];
+          if (typeof val === 'number' && !isNaN(val)) {
+            results.sectors[key] = val;
+          } else {
+            results.sectors[key] = 0;
+          }
+        }
+      } else {
+        for (const key of sectorKeys) {
+          results.sectors[key] = 0;
+        }
+      }
+      
+      results.hasInteracted = !!parsed.hasInteracted;
+      return results;
+    }
+  } catch (e) {
+    console.error("Failed to parse calculator results", e);
+  }
+  return null;
+}
 
 // Application State (Initialized to Zero Presets)
 const state = {
@@ -271,6 +316,17 @@ function setupPageTransitions() {
       }
     });
   });
+
+  // Dynamic details aria-expanded sync
+  document.querySelectorAll('details').forEach(el => {
+    const summary = el.querySelector('summary');
+    if (summary) {
+      summary.setAttribute('aria-expanded', el.hasAttribute('open') ? 'true' : 'false');
+      el.addEventListener('toggle', () => {
+        summary.setAttribute('aria-expanded', el.hasAttribute('open') ? 'true' : 'false');
+      });
+    }
+  });
 }
 
 /*
@@ -349,14 +405,12 @@ function setupWizard() {
       // Populate and Open the footprint summary modal
       const modal = document.getElementById('summary-modal');
       if (modal) {
-        populateSummaryModal();
-        modal.classList.add('active');
-        modal.setAttribute('aria-hidden', 'false');
+        openSummaryModal(modal);
       }
       
       // Scroll to the foot result card on completion
       const visualizerCard = document.querySelector('.visualizer-card');
-      if (visualizerCard) {
+      if (visualizerCard && typeof visualizerCard.scrollIntoView === 'function') {
         visualizerCard.scrollIntoView({ behavior: 'smooth' });
       }
     });
@@ -367,35 +421,125 @@ function setupWizard() {
   const summaryModal = document.getElementById('summary-modal');
   if (closeBtn && summaryModal) {
     closeBtn.addEventListener('click', () => {
-      summaryModal.classList.remove('active');
-      summaryModal.setAttribute('aria-hidden', 'true');
+      closeSummaryModal(summaryModal);
     });
     
     const backdrop = summaryModal.querySelector('.summary-modal-backdrop');
     if (backdrop) {
       backdrop.addEventListener('click', () => {
-        summaryModal.classList.remove('active');
-        summaryModal.setAttribute('aria-hidden', 'true');
+        closeSummaryModal(summaryModal);
       });
     }
   }
 
-  indicators.forEach(ind => {
-    ind.addEventListener('click', () => {
-      const targetStep = parseInt(ind.getAttribute('data-step'));
-      if (targetStep <= currentStep || ind.classList.contains('completed') || targetStep === currentStep + 1) {
-        state.hasInteracted = true;
-        showPanel(targetStep);
-        calculateFootprint();
-      }
+  // Bind indicators to select steps
+  if (indicators) {
+    indicators.forEach(ind => {
+      ind.addEventListener('click', () => {
+        const targetStep = parseInt(ind.getAttribute('data-step'));
+        if (targetStep <= currentStep || ind.classList.contains('completed') || targetStep === currentStep + 1) {
+          state.hasInteracted = true;
+          showPanel(targetStep);
+          calculateFootprint();
+        }
+      });
     });
-  });
+  }
+}
+
+let lastFocusedElementBeforeModal = null;
+
+function openSummaryModal(modal) {
+  lastFocusedElementBeforeModal = document.activeElement;
+  populateSummaryModal();
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  
+  // Set aria-hidden on other major page sections
+  const header = document.querySelector('.app-header');
+  const main = document.querySelector('.wizard-main-section');
+  const footer = document.querySelector('.app-footer');
+  if (header) header.setAttribute('aria-hidden', 'true');
+  if (main) main.setAttribute('aria-hidden', 'true');
+  if (footer) footer.setAttribute('aria-hidden', 'true');
+
+  // Focus close button or first interactive element
+  const closeBtn = document.getElementById('close-summary-btn');
+  if (closeBtn) {
+    setTimeout(() => closeBtn.focus(), 100);
+  }
+
+  // Bind focus trap and escape key
+  window.addEventListener('keydown', handleModalKeyDown);
+}
+
+function closeSummaryModal(modal) {
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+  modal.removeAttribute('role');
+  modal.removeAttribute('aria-modal');
+
+  // Restore aria-hidden on major page sections
+  const header = document.querySelector('.app-header');
+  const main = document.querySelector('.wizard-main-section');
+  const footer = document.querySelector('.app-footer');
+  if (header) header.removeAttribute('aria-hidden');
+  if (main) main.removeAttribute('aria-hidden');
+  if (footer) footer.removeAttribute('aria-hidden');
+
+  // Remove focus trap and escape key listeners
+  window.removeEventListener('keydown', handleModalKeyDown);
+
+  // Restore focus
+  if (lastFocusedElementBeforeModal && typeof lastFocusedElementBeforeModal.focus === 'function') {
+    lastFocusedElementBeforeModal.focus();
+  }
+}
+
+function handleModalKeyDown(e) {
+  const modal = document.getElementById('summary-modal');
+  if (!modal || !modal.classList.contains('active')) return;
+
+  // Escape key closes modal
+  if (e.key === 'Escape' || e.keyCode === 27) {
+    closeSummaryModal(modal);
+    return;
+  }
+
+  // Focus trapping logic for Tab
+  if (e.key === 'Tab' || e.keyCode === 9) {
+    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusables = Array.from(modal.querySelectorAll(focusableSelector)).filter(el => {
+      return el.offsetWidth > 0 && el.offsetHeight > 0 && !el.disabled;
+    });
+
+    if (focusables.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    const firstFocusable = focusables[0];
+    const lastFocusable = focusables[focusables.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        lastFocusable.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        firstFocusable.focus();
+        e.preventDefault();
+      }
+    }
+  }
 }
 
 function populateSummaryModal() {
-  const resultsStr = storage.getItem('greenly_calculatorResults');
-  if (!resultsStr) return;
-  const results = JSON.parse(resultsStr);
+  const results = loadCalculatorResults();
+  if (!results) return;
   
   const totalScore = results.totalScore;
   const sectors = results.sectors;
@@ -477,6 +621,45 @@ function populateSummaryModal() {
   syncSectorRow('energy', sectors.energy, 'energy');
   syncSectorRow('diet', sectors.diet, 'diet');
   syncSectorRow('waste', sectors.waste, 'waste');
+
+  // Calculate GHG Scopes dynamically from state values
+  const carCommuteAnnual = (state.carKm * 52) * EMISSION_FACTORS.car[state.engineType];
+  const carScope1 = (state.engineType === 'electric') ? 0 : carCommuteAnnual / 1000;
+  const heatScope1 = (state.heatingSource === 'gas') ? 1.8 : 0;
+  const scope1 = carScope1 + heatScope1;
+
+  const gridElectricityAnnual = (state.electricityKwh * 12) * EMISSION_FACTORS.electricity * (1 - state.cleanEnergyPct / 100);
+  const elecScope2 = gridElectricityAnnual / 1000;
+  const heatScope2 = (state.heatingSource === 'electric') ? 0.6 : 0;
+  const carScope2 = (state.engineType === 'electric') ? carCommuteAnnual / 1000 : 0;
+  const scope2 = elecScope2 + heatScope2 + carScope2;
+
+  const transitScope3 = ((state.transitKm * 52) * EMISSION_FACTORS.transit) / 1000;
+  const flightScope3 = (state.flightsHours * EMISSION_FACTORS.flight) / 1000;
+  const heatScope3 = (state.heatingSource === 'biomass') ? 0.1 : 0;
+
+  let dietScore = 3.3;
+  if (state.dietType === 'meat-light') dietScore = 2.4;
+  else if (state.dietType === 'vegetarian') dietScore = 1.6;
+  else if (state.dietType === 'vegan') dietScore = 1.1;
+  if (state.foodSource === 'mostly-global') dietScore += 0.3;
+  else if (state.foodSource === 'mostly-local') dietScore -= 0.2;
+
+  let lifestyleScore = 2.2;
+  if (state.lifestyle === 'moderate') lifestyleScore = 1.2;
+  else if (state.lifestyle === 'minimal') lifestyleScore = 0.6;
+  if (state.recycling === 'none') lifestyleScore += 0.2;
+  else if (state.recycling === 'full') lifestyleScore -= 0.3;
+
+  const scope3 = transitScope3 + flightScope3 + heatScope3 + dietScore + lifestyleScore;
+
+  const scope1El = document.getElementById('summary-val-scope1');
+  const scope2El = document.getElementById('summary-val-scope2');
+  const scope3El = document.getElementById('summary-val-scope3');
+
+  if (scope1El) scope1El.textContent = `${scope1.toFixed(2)} t`;
+  if (scope2El) scope2El.textContent = `${scope2.toFixed(2)} t`;
+  if (scope3El) scope3El.textContent = `${scope3.toFixed(2)} t`;
 }
 
 /*
@@ -504,6 +687,13 @@ function bindSlider(elementId, stateProperty, unitText) {
   const display = document.getElementById(`${elementId}-val`);
   
   if (slider && display) {
+    // Initialize accessibility attributes
+    const val = parseInt(slider.value) || 0;
+    slider.setAttribute('aria-valuenow', val);
+    slider.setAttribute('aria-valuetext', `${val}${unitText}`);
+    slider.setAttribute('aria-valuemin', slider.min || '0');
+    slider.setAttribute('aria-valuemax', slider.max || '100');
+
     slider.addEventListener('input', (e) => {
       const val = parseInt(e.target.value);
       state[stateProperty] = val;
@@ -512,6 +702,10 @@ function bindSlider(elementId, stateProperty, unitText) {
       display.textContent = `${val}${unitText}`;
       display.classList.remove('zero-state');
       slider.classList.remove('zero-preset');
+      
+      // Add accessibility attributes dynamically
+      slider.setAttribute('aria-valuenow', val);
+      slider.setAttribute('aria-valuetext', `${val}${unitText}`);
       
       calculateFootprint();
     });
@@ -558,7 +752,30 @@ function loadCalculatorState() {
 
   try {
     const parsed = JSON.parse(savedState);
-    Object.assign(state, parsed);
+    if (parsed && typeof parsed === 'object') {
+      // Whitelist assignment with type checking to prevent Prototype Pollution
+      const allowedKeys = {
+        carKm: 'number',
+        engineType: 'string',
+        transitKm: 'number',
+        flightsHours: 'number',
+        electricityKwh: 'number',
+        cleanEnergyPct: 'number',
+        heatingSource: 'string',
+        dietType: 'string',
+        foodSource: 'string',
+        lifestyle: 'string',
+        recycling: 'string',
+        dailyOffsetKg: 'number',
+        hasInteracted: 'boolean'
+      };
+
+      for (const [key, type] of Object.entries(allowedKeys)) {
+        if (Object.prototype.hasOwnProperty.call(parsed, key) && typeof parsed[key] === type) {
+          state[key] = parsed[key];
+        }
+      }
+    }
 
     // Sync input visual states
     restoreSliderValue('car-km', 'carKm', ' km');
@@ -584,11 +801,19 @@ function loadCalculatorState() {
 function restoreSliderValue(elementId, stateProperty, unitText) {
   const slider = document.getElementById(elementId);
   const display = document.getElementById(`${elementId}-val`);
-  if (slider && display && state[stateProperty] > 0) {
+  if (slider && display) {
     slider.value = state[stateProperty];
     display.textContent = `${state[stateProperty]}${unitText}`;
-    display.classList.remove('zero-state');
-    slider.classList.remove('zero-preset');
+    if (state[stateProperty] > 0) {
+      display.classList.remove('zero-state');
+      slider.classList.remove('zero-preset');
+    }
+    
+    // Add accessibility attributes dynamically on restore
+    slider.setAttribute('aria-valuenow', state[stateProperty]);
+    slider.setAttribute('aria-valuetext', `${state[stateProperty]}${unitText}`);
+    slider.setAttribute('aria-valuemin', slider.min || '0');
+    slider.setAttribute('aria-valuemax', slider.max || '100');
   }
 }
 
@@ -689,7 +914,7 @@ function renderPristineUI() {
   }
   
   if (footGroup) {
-    footGroup.className = 'state-pristine';
+    footGroup.setAttribute('class', 'state-pristine');
     footGroup.style.opacity = '0.15';
     footGroup.style.transform = 'scale(0.8)';
   }
@@ -715,7 +940,7 @@ function updateUI(totalScore, sectors) {
   
   if (badge) badge.className = 'status-indicator-badge';
   if (footGroup) {
-    footGroup.className = '';
+    footGroup.setAttribute('class', '');
     footGroup.removeAttribute('style'); // Clear scale
   }
   
@@ -840,9 +1065,9 @@ function setupDailyActionsPage() {
   const badge = document.getElementById('status-badge');
   const comparisonText = document.getElementById('comparison-text');
 
-  // Load calculator results
-  const savedResults = storage.getItem('greenly_calculatorResults');
-  if (!savedResults) {
+  // Load calculator results safely
+  const results = loadCalculatorResults();
+  if (!results) {
     // Locked / No calculator baseline exists
     if (baseScoreEl) baseScoreEl.textContent = "0.00 tonnes / year";
     if (offsetAmountEl) offsetAmountEl.textContent = "0.00 kg CO2";
@@ -852,17 +1077,27 @@ function setupDailyActionsPage() {
       badge.className = "status-indicator-badge badge-pristine";
     }
     if (comparisonText) {
-      comparisonText.innerHTML = 'Baseline not set. Please complete your audit on the <a href="calculator.html">Carbon Calculator</a> page first.';
+      comparisonText.textContent = 'Baseline not set. Please complete your audit on the ';
+      const link = document.createElement('a');
+      link.href = 'calculator.html';
+      link.textContent = 'Carbon Calculator';
+      comparisonText.appendChild(link);
+      comparisonText.appendChild(document.createTextNode(' page first.'));
     }
     // Disable checklist interaction visually
     document.querySelectorAll('.eco-checkbox').forEach(box => box.disabled = true);
     return;
   }
 
-  const results = JSON.parse(savedResults);
   const baseScore = results.totalScore;
 
-  if (baseScoreEl) baseScoreEl.innerHTML = `${baseScore.toFixed(2)} <span class="standing-unit">tonnes / year</span>`;
+  if (baseScoreEl) {
+    baseScoreEl.textContent = baseScore.toFixed(2) + ' ';
+    const span = document.createElement('span');
+    span.className = 'standing-unit';
+    span.textContent = 'tonnes / year';
+    baseScoreEl.appendChild(span);
+  }
 
   // Render the dynamic daily challenge
   const challenge = renderDailyChallenge();
@@ -872,10 +1107,15 @@ function setupDailyActionsPage() {
   if (savedChecks) {
     try {
       const checkedIds = JSON.parse(savedChecks);
-      checkedIds.forEach(id => {
-        const box = document.getElementById(id);
-        if (box) box.checked = true;
-      });
+      if (Array.isArray(checkedIds)) {
+        checkedIds.forEach(id => {
+          // Sanitize ID (prevent DOM clobbering or invalid DOM query crashes)
+          if (typeof id === 'string' && /^[a-zA-Z0-9_-]+$/.test(id)) {
+            const box = document.getElementById(id);
+            if (box) box.checked = true;
+          }
+        });
+      }
     } catch (e) {
       console.error(e);
     }
@@ -907,20 +1147,55 @@ function renderDailyChallenge() {
   const currentDay = new Date().getDay();
   const challenge = DAILY_CHALLENGES.find(c => c.day === currentDay) || DAILY_CHALLENGES[1];
 
-  container.innerHTML = `
-    <div class="daily-challenge-card">
-      <div class="challenge-badge">Today's Eco Challenge</div>
-      <label class="action-item challenge-item">
-        <input type="checkbox" class="eco-checkbox" data-co2="${challenge.co2}" id="${challenge.id}">
-        <span class="checkbox-custom"></span>
-        <span class="action-details">
-          <span class="action-name">${challenge.name}</span>
-          <span class="action-desc" style="font-size: 0.82rem; color: var(--text-muted); display: block; margin-top: 2px;">${challenge.desc}</span>
-          <span class="action-reward">Special Reward: Offsets ~${challenge.co2.toFixed(2)} kg CO2</span>
-        </span>
-      </label>
-    </div>
-  `;
+  container.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'daily-challenge-card';
+
+  const badge = document.createElement('div');
+  badge.className = 'challenge-badge';
+  badge.textContent = "Today's Eco Challenge";
+  card.appendChild(badge);
+
+  const label = document.createElement('label');
+  label.className = 'action-item challenge-item';
+
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.className = 'eco-checkbox';
+  checkbox.setAttribute('data-co2', challenge.co2.toFixed(2));
+  checkbox.id = challenge.id;
+  label.appendChild(checkbox);
+
+  const checkboxCustom = document.createElement('span');
+  checkboxCustom.className = 'checkbox-custom';
+  label.appendChild(checkboxCustom);
+
+  const actionDetails = document.createElement('span');
+  actionDetails.className = 'action-details';
+
+  const actionName = document.createElement('span');
+  actionName.className = 'action-name';
+  actionName.textContent = challenge.name;
+  actionDetails.appendChild(actionName);
+
+  const actionDesc = document.createElement('span');
+  actionDesc.className = 'action-desc';
+  actionDesc.style.fontSize = '0.82rem';
+  actionDesc.style.color = 'var(--text-muted)';
+  actionDesc.style.display = 'block';
+  actionDesc.style.marginTop = '2px';
+  actionDesc.textContent = challenge.desc;
+  actionDetails.appendChild(actionDesc);
+
+  const actionReward = document.createElement('span');
+  actionReward.className = 'action-reward';
+  actionReward.textContent = `Special Reward: Offsets ~${challenge.co2.toFixed(2)} kg CO2`;
+  actionDetails.appendChild(actionReward);
+
+  label.appendChild(actionDetails);
+  card.appendChild(label);
+  container.appendChild(card);
 
   return challenge;
 }
@@ -954,8 +1229,20 @@ function updateStanding(baseScore, challenge) {
   const annualOffsetTonnes = (totalSavedKg * 365) / 1000;
   const netScore = Math.max(0.1, baseScore - annualOffsetTonnes);
 
-  if (offsetAmountEl) offsetAmountEl.innerHTML = `${totalSavedKg.toFixed(2)} <span class="standing-unit">kg CO2</span>`;
-  if (netScoreEl) netScoreEl.innerHTML = `${netScore.toFixed(2)} <span class="standing-unit">tonnes / year</span>`;
+  if (offsetAmountEl) {
+    offsetAmountEl.textContent = totalSavedKg.toFixed(2) + ' ';
+    const span = document.createElement('span');
+    span.className = 'standing-unit';
+    span.textContent = 'kg CO2';
+    offsetAmountEl.appendChild(span);
+  }
+  if (netScoreEl) {
+    netScoreEl.textContent = netScore.toFixed(2) + ' ';
+    const span = document.createElement('span');
+    span.className = 'standing-unit';
+    span.textContent = 'tonnes / year';
+    netScoreEl.appendChild(span);
+  }
 
   // Update standing badge and comparison texts
   if (badge) {
@@ -1071,14 +1358,22 @@ function syncPrintCategory(sectorId, score, limitKey) {
     badge.classList.add('print-badge-critical');
     badge.textContent = 'CRITICAL';
 
+    const renderSolution = (prefix, message) => {
+      solutionText.textContent = '';
+      const strong = document.createElement('strong');
+      strong.textContent = prefix + ':';
+      solutionText.appendChild(strong);
+      solutionText.appendChild(document.createTextNode(' ' + message));
+    };
+
     if (limitKey === 'transport') {
-      solutionText.innerHTML = '<strong>Action Required:</strong> Swap gas commutes for cycling/trains immediately. Target a 50% driving reduction.';
+      renderSolution('Action Required', 'Swap gas commutes for cycling/trains immediately. Target a 50% driving reduction.');
     } else if (limitKey === 'energy') {
-      solutionText.innerHTML = '<strong>Action Required:</strong> Retrofit insulation, install a heat pump, and switch power lines to a green supplier.';
+      renderSolution('Action Required', 'Retrofit insulation, install a heat pump, and switch power lines to a green supplier.');
     } else if (limitKey === 'diet') {
-      solutionText.innerHTML = '<strong>Action Required:</strong> Minimize red meat intake. Incorporate vegan recipes 3-4 days a week.';
+      renderSolution('Action Required', 'Minimize red meat intake. Incorporate vegan recipes 3-4 days a week.');
     } else {
-      solutionText.innerHTML = '<strong>Action Required:</strong> Restrict new purchases. Commit to recycled/repaired clothing and electronics.';
+      renderSolution('Action Required', 'Restrict new purchases. Commit to recycled/repaired clothing and electronics.');
     }
   } else if (score >= limits.moderate) {
     // MODERATE (Yellow)
@@ -1086,14 +1381,22 @@ function syncPrintCategory(sectorId, score, limitKey) {
     badge.classList.add('print-badge-moderate');
     badge.textContent = 'MODERATE';
 
+    const renderSolution = (prefix, message) => {
+      solutionText.textContent = '';
+      const strong = document.createElement('strong');
+      strong.textContent = prefix + ':';
+      solutionText.appendChild(strong);
+      solutionText.appendChild(document.createTextNode(' ' + message));
+    };
+
     if (limitKey === 'transport') {
-      solutionText.innerHTML = '<strong>Suggestion:</strong> Group car commutes, maintain tire pressures, and check public transit alternatives.';
+      renderSolution('Suggestion', 'Group car commutes, maintain tire pressures, and check public transit alternatives.');
     } else if (limitKey === 'energy') {
-      solutionText.innerHTML = '<strong>Suggestion:</strong> Install LED lighting, adjust cooling/heating points, and unplug standby devices.';
+      renderSolution('Suggestion', 'Install LED lighting, adjust cooling/heating points, and unplug standby devices.');
     } else if (limitKey === 'diet') {
-      solutionText.innerHTML = '<strong>Suggestion:</strong> Buy local market produce and reduce weekly dairy consumption.';
+      renderSolution('Suggestion', 'Buy local market produce and reduce weekly dairy consumption.');
     } else {
-      solutionText.innerHTML = '<strong>Suggestion:</strong> Set up organic compost bins and recycle paper, tins, and plastics.';
+      renderSolution('Suggestion', 'Set up organic compost bins and recycle paper, tins, and plastics.');
     }
   } else {
     // GOOD (Green)
@@ -1101,14 +1404,48 @@ function syncPrintCategory(sectorId, score, limitKey) {
     badge.classList.add('print-badge-good');
     badge.textContent = 'GOOD';
 
+    const renderSolution = (prefix, message) => {
+      solutionText.textContent = '';
+      const strong = document.createElement('strong');
+      strong.textContent = prefix + ':';
+      solutionText.appendChild(strong);
+      solutionText.appendChild(document.createTextNode(' ' + message));
+    };
+
     if (limitKey === 'transport') {
-      solutionText.innerHTML = '<strong>Well Done:</strong> Excellent work keeping travel mileage and flight emissions highly minimal.';
+      renderSolution('Well Done', 'Excellent work keeping travel mileage and flight emissions highly minimal.');
     } else if (limitKey === 'energy') {
-      solutionText.innerHTML = '<strong>Well Done:</strong> Great job maintaining low home electrical consumption and clean power levels.';
+      renderSolution('Well Done', 'Great job maintaining low home electrical consumption and clean power levels.');
     } else if (limitKey === 'diet') {
-      solutionText.innerHTML = '<strong>Well Done:</strong> Excellent choice maintaining a highly ecological plant-based diet structure.';
+      renderSolution('Well Done', 'Excellent choice maintaining a highly ecological plant-based diet structure.');
     } else {
-      solutionText.innerHTML = '<strong>Well Done:</strong> Superb practice minimizing waste and supporting circular consumption.';
+      renderSolution('Well Done', 'Superb practice minimizing waste and supporting circular consumption.');
     }
   }
 }
+
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+  module.exports = {
+    state,
+    EMISSION_FACTORS,
+    TARGETS,
+    SECTOR_LIMITS,
+    DAILY_CHALLENGES,
+    calculateFootprint,
+    updateUI,
+    renderPristineUI,
+    setupDailyActionsPage,
+    updateStanding,
+    triggerPrintReport,
+    syncPrintCategory,
+    openSummaryModal,
+    closeSummaryModal,
+    loadCalculatorState,
+    loadCalculatorResults,
+    setupPageTransitions,
+    setupCalculatorEventListeners,
+    setupWizard,
+    storage
+  };
+}
+

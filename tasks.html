@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; script-src 'self' 'unsafe-inline';">
   <title>Greenly — Daily Tasks</title>
   <meta name="description" content="Check off your daily tasks to immediately lower your carbon footprint score. Track your current standing and save CO2.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
@@ -57,7 +58,7 @@
     <div class="dashboard-grid">
       
       <!-- LEFT: Daily Checklists -->
-      <div class="dashboard-card checklist-card organic-leaf-panel clickable-card">
+      <div class="dashboard-card checklist-card organic-leaf-panel">
         <div class="card-header">
           <h2>Today's Tasks</h2>
           <p class="subtitle">Select actions you completed today to see offsets update</p>
@@ -119,10 +120,10 @@
       </div>
 
       <!-- RIGHT: Current Standing Summary Card -->
-      <div class="dashboard-card visualizer-card organic-leaf-panel glass-glow-card clickable-card">
+      <div class="dashboard-card visualizer-card organic-leaf-panel glass-glow-card">
         <div class="visualizer-header">
           <h2>Ecosystem Audit</h2>
-          <span class="status-indicator-badge" id="status-badge">PRISTINE</span>
+          <span class="status-indicator-badge" id="status-badge" aria-live="polite">PRISTINE</span>
         </div>
 
         <div class="standing-overview-container">
@@ -133,12 +134,12 @@
           
           <div class="standing-item">
             <span class="standing-label">Carbon Offset Today</span>
-            <div class="standing-value accent-offset-text" id="offset-amount">0.00 <span class="standing-unit">kg CO2</span></div>
+            <div class="standing-value accent-offset-text" id="offset-amount" aria-live="polite">0.00 <span class="standing-unit">kg CO2</span></div>
           </div>
           
           <div class="standing-item total-result-standing">
             <span class="standing-label">Net Carbon Footprint</span>
-            <div class="standing-value" id="net-score">0.00 <span class="standing-unit">tonnes / year</span></div>
+            <div class="standing-value" id="net-score" aria-live="polite">0.00 <span class="standing-unit">tonnes / year</span></div>
           </div>
         </div>
 

@@ -1884,3 +1884,168 @@ a.text-decoration-none {
   margin-top: 5px;
   line-height: 1.35;
 }
+
+/* Accessibility Focus States */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.clickable-card:focus-visible,
+.radio-card:focus-visible {
+  outline: 2px solid var(--color-green-mid) !important;
+  outline-offset: 4px !important;
+}
+
+.radio-card input:focus-visible + .radio-content {
+  outline: 2px solid var(--color-green-mid) !important;
+  outline-offset: 2px !important;
+}
+
+.eco-checkbox:focus-visible ~ .checkbox-custom {
+  outline: 2px solid var(--color-green-mid) !important;
+  outline-offset: 2px !important;
+}
+
+/* GHG Scope Classification styling */
+.summary-scopes-section {
+  margin-top: 30px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 25px;
+}
+.summary-scopes-section .section-subtitle {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--color-green-dark);
+  margin-bottom: 15px;
+}
+.scopes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+@media (max-width: 768px) {
+  .scopes-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+.scope-card {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: help;
+}
+.scope-card:hover {
+  background: var(--bg-card);
+  border-color: var(--color-green-mid);
+  transform: translateY(-2px);
+}
+.scope-title {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.scope-val {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-green-dark);
+  font-family: var(--font-sans);
+}
+
+/* Tooltip style for scopes */
+.scope-card::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 105%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(30, 56, 42, 0.95);
+  color: #faf6ee;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  width: 220px;
+  line-height: 1.4;
+  text-align: center;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  box-shadow: var(--shadow-premium);
+}
+.scope-card:hover::after {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Methodology details accordion style */
+.methodology-details {
+  margin-top: 25px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  text-align: left;
+}
+.methodology-summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-green-dark);
+  font-size: 0.85rem;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  outline: none;
+  padding: 4px 0;
+}
+.methodology-summary:focus-visible {
+  outline: 2px solid var(--color-green-mid);
+}
+.methodology-summary::-webkit-details-marker {
+  display: none;
+}
+.methodology-summary::before {
+  content: "▶";
+  font-size: 0.65rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  color: var(--color-green-mid);
+}
+details[open] .methodology-summary::before {
+  transform: rotate(90deg);
+}
+.methodology-content {
+  margin-top: 12px;
+  font-size: 0.74rem;
+  color: #555;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px dashed var(--border-color);
+  line-height: 1.5;
+}
+.methodology-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+.methodology-table th, .methodology-table td {
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  padding: 6px 4px;
+  text-align: left;
+}
+.methodology-table th {
+  font-weight: 700;
+  color: var(--color-green-dark);
+}
+

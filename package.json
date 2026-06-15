@@ -1,0 +1,17 @@
+{
+  "name": "greenly",
+  "version": "1.0.0",
+  "description": "Greenly - Carbon Footprint Tracker",
+  "main": "app.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "type": "commonjs",
+  "devDependencies": {
+    "vitest": "^1.6.0",
+    "jsdom": "^24.1.0",
+    "@vitest/coverage-v8": "^1.6.0"
+  }
+}

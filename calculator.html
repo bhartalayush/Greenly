@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; script-src 'self' 'unsafe-inline';">
   <title>Greenly — Carbon Calculator</title>
   <meta name="description" content="A zero-preset step-by-step calculator that dynamically visualizes your carbon footprint. Offset emissions with daily habits and download your color-coded PDF report.">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
@@ -325,7 +326,7 @@
       <div class="dashboard-card visualizer-card organic-leaf-panel glass-glow-card">
         <div class="visualizer-header">
           <h2>Footprint Score</h2>
-          <span class="status-indicator-badge" id="status-badge">PRISTINE</span>
+          <span class="status-indicator-badge" id="status-badge" aria-live="polite">PRISTINE</span>
         </div>
 
         <!-- Footprint SVG inside custom arch -->
@@ -368,7 +369,7 @@
         <div class="carbon-score-display">
           <span class="score-label">Annual Emission Rating</span>
           <div class="score-value">
-            <span id="score-num">0.00</span>
+            <span id="score-num" aria-live="polite">0.00</span>
             <span class="score-unit">tonnes CO<sub>2</sub>e</span>
           </div>
           <p class="score-comparison" id="comparison-text">Start adjusting inputs on the left to measure your footprint.</p>
@@ -486,10 +487,10 @@
         <!-- Main Score Row -->
         <div class="summary-score-overview">
           <div class="summary-score-large">
-            <span id="summary-total-score">0.00</span>
+            <span id="summary-total-score" aria-live="polite">0.00</span>
             <span class="unit">tonnes CO<sub>2</sub>e / year</span>
           </div>
-          <span class="status-indicator-badge" id="summary-status-badge">PRISTINE</span>
+          <span class="status-indicator-badge" id="summary-status-badge" aria-live="polite">PRISTINE</span>
         </div>
         
         <p class="summary-comparison-text text-center" id="summary-comparison-text">
@@ -545,6 +546,86 @@
             </div>
             <p class="summary-sector-tip" id="summary-tip-waste">Diligent recycling and organic composting to reduce landfill.</p>
           </div>
+        </div>
+
+        <!-- GHG Protocol Scope Classification -->
+        <div class="summary-scopes-section">
+          <h3 class="section-subtitle">GHG Protocol Scope Classification</h3>
+          <div class="scopes-grid">
+            <div class="scope-card" data-tooltip="Scope 1 (Direct): Emissions from burning fuels (e.g., car gasoline, home gas heating).">
+              <span class="scope-title">Scope 1 (Direct)</span>
+              <span class="scope-val" id="summary-val-scope1">0.00 t</span>
+            </div>
+            <div class="scope-card" data-tooltip="Scope 2 (Indirect energy): Emissions from purchased grid electricity.">
+              <span class="scope-title">Scope 2 (Grid Energy)</span>
+              <span class="scope-val" id="summary-val-scope2">0.00 t</span>
+            </div>
+            <div class="scope-card" data-tooltip="Scope 3 (Value chain): Indirect emissions from transit, flights, food lifecycle, and waste landfill decomposition.">
+              <span class="scope-title">Scope 3 (Value Chain)</span>
+              <span class="scope-val" id="summary-val-scope3">0.00 t</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculation Methodology & Coefficients Accordion -->
+        <div class="methodology-details">
+          <details>
+            <summary class="methodology-summary" aria-expanded="false">Calculation Methodology & Emission Factors</summary>
+            <div class="methodology-content">
+              <p>Greenly calculates carbon scores using standard ESG / Greenhouse Gas (GHG) Protocol conversion coefficients. Baseline formulas assume average annual lifecycle loads:</p>
+              <table class="methodology-table">
+                <thead>
+                  <tr>
+                    <th>Emission Source</th>
+                    <th>Classification</th>
+                    <th>Conversion Coefficient</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Car Travel (Gasoline)</td>
+                    <td>Scope 1</td>
+                    <td>0.20 kg CO₂e / km</td>
+                  </tr>
+                  <tr>
+                    <td>Car Travel (Hybrid)</td>
+                    <td>Scope 1</td>
+                    <td>0.11 kg CO₂e / km</td>
+                  </tr>
+                  <tr>
+                    <td>Car Travel (Electric)</td>
+                    <td>Scope 2</td>
+                    <td>0.04 kg CO₂e / km</td>
+                  </tr>
+                  <tr>
+                    <td>Home Natural Gas</td>
+                    <td>Scope 1</td>
+                    <td>1,800 kg CO₂e / year flat</td>
+                  </tr>
+                  <tr>
+                    <td>Grid Electricity</td>
+                    <td>Scope 2</td>
+                    <td>0.40 kg CO₂e / kWh</td>
+                  </tr>
+                  <tr>
+                    <td>Public Transit</td>
+                    <td>Scope 3</td>
+                    <td>0.04 kg CO₂e / km</td>
+                  </tr>
+                  <tr>
+                    <td>Air Flights</td>
+                    <td>Scope 3</td>
+                    <td>90 kg CO₂e / hour</td>
+                  </tr>
+                  <tr>
+                    <td>Biomass / Wood Heat</td>
+                    <td>Scope 3 (Biogenic)</td>
+                    <td>100 kg CO₂e / year flat</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
       </div>
       
