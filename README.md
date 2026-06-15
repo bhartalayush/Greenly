@@ -2,7 +2,7 @@
 
 **Greenly** is a premium, nature-themed web experience that enables users to measure, analyze, and offset their carbon footprint through daily habits and sustainable actions. Designed with an elegant, editorial aesthetic featuring warm cream tones, deep forest green accents, and rich typography, Greenly combines mathematical precision with delightful micro-animations to drive climate awareness.
 
-Live Demo: **
+Live Demo: [*Demo*](https://bhartalayush.github.io/Greenly/)
 
 ---
 
