@@ -21,7 +21,7 @@
   <!-- Swaying Falling Leaf Page Transition Curtain -->
   <div id="transition-curtain" class="transition-curtain" aria-hidden="true">
     <div class="falling-leaf-container">
-      <svg class="falling-leaf-svg" viewBox="0 0 100 100">
+      <svg class="falling-leaf-svg" viewBox="0 0 100 100" aria-hidden="true">
         <path d="M50,15 C65,35 65,65 50,85 C35,65 35,35 50,15 Z" fill="#1E382A"/>
         <path d="M50,15 L50,85" stroke="#FAF6EE" stroke-width="1"/>
       </svg>
@@ -68,7 +68,7 @@
         <div id="daily-challenge-container"></div>
         
         <div class="actions-list">
-          <label class="action-item">
+          <label class="action-item" for="task-travel">
             <input type="checkbox" class="eco-checkbox" data-co2="0.60" id="task-travel">
             <span class="checkbox-custom"></span>
             <span class="action-details">
@@ -76,7 +76,7 @@
               <span class="action-reward">Offsets ~0.60 kg CO2</span>
             </span>
           </label>
-          <label class="action-item">
+          <label class="action-item" for="task-diet">
             <input type="checkbox" class="eco-checkbox" data-co2="0.30" id="task-diet">
             <span class="checkbox-custom"></span>
             <span class="action-details">
@@ -84,7 +84,7 @@
               <span class="action-reward">Offsets ~0.30 kg CO2</span>
             </span>
           </label>
-          <label class="action-item">
+          <label class="action-item" for="task-unplug">
             <input type="checkbox" class="eco-checkbox" data-co2="0.15" id="task-unplug">
             <span class="checkbox-custom"></span>
             <span class="action-details">
@@ -92,7 +92,7 @@
               <span class="action-reward">Offsets ~0.15 kg CO2</span>
             </span>
           </label>
-          <label class="action-item">
+          <label class="action-item" for="task-drying">
             <input type="checkbox" class="eco-checkbox" data-co2="0.20" id="task-drying">
             <span class="checkbox-custom"></span>
             <span class="action-details">
@@ -100,7 +100,7 @@
               <span class="action-reward">Offsets ~0.20 kg CO2</span>
             </span>
           </label>
-          <label class="action-item">
+          <label class="action-item" for="task-shower">
             <input type="checkbox" class="eco-checkbox" data-co2="0.25" id="task-shower">
             <span class="checkbox-custom"></span>
             <span class="action-details">
@@ -108,7 +108,7 @@
               <span class="action-reward">Offsets ~0.25 kg CO2</span>
             </span>
           </label>
-          <label class="action-item">
+          <label class="action-item" for="task-bags">
             <input type="checkbox" class="eco-checkbox" data-co2="0.10" id="task-bags">
             <span class="checkbox-custom"></span>
             <span class="action-details">

@@ -4,6 +4,7 @@ const path = require('path');
 
 // Setup mock document environment for testing JSDOM behaviors
 beforeEach(() => {
+  window.HTMLElement.prototype.scrollIntoView = vi.fn();
   document.body.innerHTML = `
     <!-- Calculator elements -->
     <div id="score-num" aria-live="polite">0.00</div>
@@ -30,6 +31,7 @@ beforeEach(() => {
       <select id="food-source">
         <option value="balanced" selected>Balanced</option>
       </select>
+      <button id="download-report-btn">Print</button>
     </form>
 
     <!-- Modal Elements -->
@@ -111,6 +113,14 @@ beforeEach(() => {
     removeItem: vi.fn(key => { delete store[key]; }),
     clear: vi.fn(() => { Object.keys(store).forEach(k => delete store[k]); })
   };
+
+  // Suppress expected warning/error logs during test execution
+  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 // Import Greenly modules
@@ -176,6 +186,36 @@ describe('Greenly Footprint Calculations', () => {
     expect(s1).toBeCloseTo(4.92, 2);
     expect(s2).toBeCloseTo(1.44, 2);
     expect(s3).toBeCloseTo(4.71, 2);
+  });
+
+  test('Carbon calculations handle vegetarian, vegan, and minimal lifestyle profiles correctly', () => {
+    app.state.carKm = 0;
+    app.state.transitKm = 0;
+    app.state.flightsHours = 0;
+    app.state.electricityKwh = 0;
+    app.state.cleanEnergyPct = 0;
+    app.state.heatingSource = 'gas'; // 1.8 tonnes
+    app.state.dietType = 'vegan'; // 1.1 tonnes
+    app.state.foodSource = 'mostly-local'; // -0.2 tonnes
+    app.state.lifestyle = 'minimal'; // 0.6 tonnes
+    app.state.recycling = 'full'; // -0.3 tonnes
+    app.state.hasInteracted = true;
+    app.calculateFootprint();
+
+    // Total expected score = 0 (transport) + 1.8 (energy) + (1.1 - 0.2) (diet) + (0.6 - 0.3) (lifestyle) = 1.8 + 0.9 + 0.3 = 3.0 tonnes.
+    let scoreNum = parseFloat(document.getElementById('score-num').textContent);
+    expect(scoreNum).toBeCloseTo(3.0, 2);
+
+    // Switch to vegetarian and moderate lifestyle
+    app.state.dietType = 'vegetarian'; // 1.6 tonnes
+    app.state.foodSource = 'mostly-global'; // +0.3 tonnes
+    app.state.lifestyle = 'moderate'; // 1.2 tonnes
+    app.state.recycling = 'none'; // +0.2 tonnes
+    app.calculateFootprint();
+
+    // Total expected score = 1.8 (energy) + (1.6 + 0.3) (diet) + (1.2 + 0.2) (lifestyle) = 1.8 + 1.9 + 1.4 = 5.1 tonnes.
+    scoreNum = parseFloat(document.getElementById('score-num').textContent);
+    expect(scoreNum).toBeCloseTo(5.1, 2);
   });
 });
 
@@ -385,6 +425,11 @@ describe('Greenly Advanced Interactions and a11y focus flows', () => {
     res = app.loadCalculatorResults();
     expect(res).not.toBeNull();
     expect(Object.prototype.pollutedResultsKey).toBeUndefined();
+
+    // Case 5: Invalid JSON string (triggers catch block for JSON.parse syntax error)
+    global.localStorage.setItem('greenly_calculatorResults', '{invalid_json');
+    res = app.loadCalculatorResults();
+    expect(res).toBeNull();
   });
 
   test('Range inputs handle input events and update state dynamically', () => {
@@ -426,10 +471,10 @@ describe('Greenly Advanced Interactions and a11y focus flows', () => {
     const overlay = document.getElementById('visual-overlay');
     expect(overlay).not.toBeNull();
     
-    vi.advanceTimersByTime(2600);
+    vi.advanceTimersByTime(25000); // 10 sprouts (caps at 8 and removes older ones)
     
     const sprouts = overlay.querySelectorAll('.sprout-item');
-    expect(sprouts.length).toBeGreaterThan(0);
+    expect(sprouts.length).toBe(9); // capped at 9 (boundary check is > 8 before append)
     vi.useRealTimers();
   });
 
@@ -596,7 +641,13 @@ describe('Greenly Advanced Interactions and a11y focus flows', () => {
     document.getElementById('status-badge').textContent = 'Carbon Heavy';
     app.triggerPrintReport();
 
-    expect(window.print).toHaveBeenCalledTimes(3);
+    // Case 4: Eco-Guardian status, meat-light, natural gas heating
+    document.getElementById('status-badge').textContent = 'Eco-Guardian';
+    app.state.heatingSource = 'gas';
+    app.state.dietType = 'meat-light';
+    app.triggerPrintReport();
+
+    expect(window.print).toHaveBeenCalledTimes(4);
     window.print = originalPrint;
   });
 
@@ -618,5 +669,342 @@ describe('Greenly Advanced Interactions and a11y focus flows', () => {
     
     // Should handle JSON error gracefully without throwing
     expect(() => app.setupDailyActionsPage()).not.toThrow();
+  });
+
+  test('Radio inputs and selects handle change events and update state dynamically', () => {
+    // Inject radio element programmatically
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'engine-type';
+    radio.value = 'electric';
+    document.body.appendChild(radio);
+
+    // Inject option programmatically to prevent resetting the DOM and destroying listeners
+    const select = document.getElementById('food-source');
+    const option = document.createElement('option');
+    option.value = 'mostly-local';
+    option.textContent = 'Local';
+    select.appendChild(option);
+    
+    // Bind calculator input listeners
+    app.setupCalculatorEventListeners();
+
+    radio.checked = true;
+    radio.dispatchEvent(new Event('change'));
+    expect(app.state.engineType).toBe('electric');
+
+    select.value = 'mostly-local';
+    select.dispatchEvent(new Event('change'));
+    expect(app.state.foodSource).toBe('mostly-local');
+  });
+
+  test('loadCalculatorState catches JSON errors gracefully', () => {
+    global.localStorage.setItem('greenly_calculatorState', '{invalid_json');
+    expect(() => app.loadCalculatorState()).not.toThrow();
+  });
+
+  test('setupCalculatorEventListeners registers download-report-btn click event correctly', () => {
+    const originalPrint = window.print;
+    window.print = vi.fn();
+
+    // Bind event listeners
+    app.setupCalculatorEventListeners();
+
+    // Setup results in storage so triggerPrintReport runs smoothly
+    const initialResults = {
+      totalScore: 5.0,
+      sectors: { transport: 1.0, energy: 1.0, diet: 1.5, waste: 1.5 },
+      hasInteracted: true
+    };
+    global.localStorage.setItem('greenly_calculatorResults', JSON.stringify(initialResults));
+
+    // Simulate click on print button
+    const printBtn = document.getElementById('download-report-btn');
+    printBtn.dispatchEvent(new Event('click'));
+
+    expect(window.print).toHaveBeenCalled();
+    window.print = originalPrint;
+  });
+
+  test('populateSummaryModal correctly renders good limits and covers vegan/minimalist calculation branches', () => {
+    // Reset state values to prevent pollution from previous test cases
+    app.state.carKm = 0;
+    app.state.transitKm = 0;
+    app.state.flightsHours = 0;
+    app.state.electricityKwh = 0;
+    app.state.cleanEnergyPct = 0;
+    app.state.heatingSource = 'gas';
+    app.state.foodSource = 'balanced';
+    app.state.recycling = 'some';
+
+    // Setup low sectors scores (< limits.moderate)
+    const lowSectorsResults = {
+      totalScore: 2.0,
+      sectors: { transport: 0.5, energy: 0.4, diet: 0.6, waste: 0.3 },
+      hasInteracted: true
+    };
+    global.localStorage.setItem('greenly_calculatorResults', JSON.stringify(lowSectorsResults));
+
+    // Setup low emissions lifestyle state values
+    app.state.dietType = 'vegan';
+    app.state.lifestyle = 'minimal';
+
+    const modal = document.getElementById('summary-modal');
+    app.openSummaryModal(modal);
+
+    // Verify progress bar classes are set to bar-good
+    expect(document.getElementById('summary-bar-transport').classList.contains('bar-good')).toBe(true);
+    expect(document.getElementById('summary-bar-energy').classList.contains('bar-good')).toBe(true);
+    expect(document.getElementById('summary-bar-diet').classList.contains('bar-good')).toBe(true);
+    expect(document.getElementById('summary-bar-waste').classList.contains('bar-good')).toBe(true);
+
+    // Verify recommendations
+    expect(document.getElementById('summary-tip-transport').textContent).toContain("Well Done");
+    expect(document.getElementById('summary-tip-energy').textContent).toContain("Well Done");
+    expect(document.getElementById('summary-tip-diet').textContent).toContain("Well Done");
+    expect(document.getElementById('summary-tip-waste').textContent).toContain("Well Done");
+
+    // Verify scope calculations
+    const s3 = parseFloat(document.getElementById('summary-val-scope3').textContent);
+    expect(s3).toBeCloseTo(1.7, 1);
+  });
+
+  test('populateSummaryModal correctly renders critical limits suggestion for waste', () => {
+    // Setup critical scores (> limits.critical)
+    const criticalResults = {
+      totalScore: 12.0,
+      sectors: { transport: 3.0, energy: 2.5, diet: 2.5, waste: 2.0 },
+      hasInteracted: true
+    };
+    global.localStorage.setItem('greenly_calculatorResults', JSON.stringify(criticalResults));
+
+    app.state.dietType = 'meat-heavy';
+    app.state.lifestyle = 'high';
+
+    const modal = document.getElementById('summary-modal');
+    app.openSummaryModal(modal);
+
+    // Verify progress bar class is set to bar-critical
+    expect(document.getElementById('summary-bar-waste').classList.contains('bar-critical')).toBe(true);
+    expect(document.getElementById('summary-tip-waste').textContent).toContain("Restrict buying new goods");
+  });
+
+  test('handleModalKeyDown focus trapping handles tab focus loops, Shift+Tab loops, and empty focusables', () => {
+    const modal = document.getElementById('summary-modal');
+    
+    // Add focusable elements to modal content
+    const content = modal.querySelector('.summary-modal-content');
+    content.innerHTML = `
+      <button id="btn1">Button 1</button>
+      <button id="btn2">Button 2</button>
+      <button id="btn3">Button 3</button>
+    `;
+    
+    // Open modal
+    app.openSummaryModal(modal);
+    expect(modal.classList.contains('active')).toBe(true);
+
+    const btn1 = document.getElementById('btn1');
+    const btn2 = document.getElementById('btn2');
+    const btn3 = document.getElementById('btn3');
+
+    // Mock JSDOM offset size properties
+    Object.defineProperty(btn1, 'offsetWidth', { value: 10, configurable: true });
+    Object.defineProperty(btn1, 'offsetHeight', { value: 10, configurable: true });
+    Object.defineProperty(btn2, 'offsetWidth', { value: 10, configurable: true });
+    Object.defineProperty(btn2, 'offsetHeight', { value: 10, configurable: true });
+    Object.defineProperty(btn3, 'offsetWidth', { value: 10, configurable: true });
+    Object.defineProperty(btn3, 'offsetHeight', { value: 10, configurable: true });
+
+    // Focus first button, press Shift+Tab (should loop to last button)
+    btn1.focus();
+    const shiftTabEvent = new KeyboardEvent('keydown', { key: 'Tab', keyCode: 9, shiftKey: true });
+    window.dispatchEvent(shiftTabEvent);
+    expect(document.activeElement).toBe(btn3);
+
+    // Focus last button, press Tab (should loop to first button)
+    btn3.focus();
+    const tabEvent = new KeyboardEvent('keydown', { key: 'Tab', keyCode: 9, shiftKey: false });
+    window.dispatchEvent(tabEvent);
+    expect(document.activeElement).toBe(btn1);
+
+    // Close modal to verify early return (no focus trapping when inactive)
+    app.closeSummaryModal(modal);
+    
+    // Re-create a button outside the modal and focus it
+    const outerBtn = document.createElement('button');
+    document.body.appendChild(outerBtn);
+    outerBtn.focus();
+    window.dispatchEvent(tabEvent);
+    // Focus should not change since modal is inactive
+    expect(document.activeElement).toBe(outerBtn);
+    outerBtn.remove();
+
+    // Re-open and test with no focusable elements to cover the empty check
+    app.openSummaryModal(modal);
+    content.innerHTML = '';
+    const emptyTabEvent = new KeyboardEvent('keydown', { key: 'Tab', keyCode: 9 });
+    window.dispatchEvent(emptyTabEvent);
+  });
+
+  test('summary modal backdrop click closes the modal', () => {
+    // Setup elements for setupWizard to bind modal listeners successfully
+    document.body.innerHTML += `
+      <div class="wizard-panel"></div>
+      <span class="step-indicator" data-step="1"></span>
+      <button class="next-step-btn">Next</button>
+      <button class="prev-step-btn">Prev</button>
+      <button class="finish-wizard-btn">Finish</button>
+    `;
+    app.setupWizard();
+
+    const modal = document.getElementById('summary-modal');
+    app.openSummaryModal(modal);
+    expect(modal.classList.contains('active')).toBe(true);
+
+    const backdrop = modal.querySelector('.summary-modal-backdrop');
+    backdrop.dispatchEvent(new Event('click'));
+    expect(modal.classList.contains('active')).toBe(false);
+  });
+
+  test('Page navigation links click handler transitions correctly', () => {
+    vi.useFakeTimers();
+    // Save original location
+    const originalLocation = window.location;
+    delete window.location;
+    window.location = {
+      ...originalLocation,
+      pathname: '/calculator.html',
+      href: ''
+    };
+
+    // Setup nav links and curtain in DOM
+    document.body.innerHTML += `
+      <div id="transition-curtain"></div>
+      <a href="tasks.html" class="nav-transition" id="nav-link-test">Tasks</a>
+      <a href="#anchor" class="nav-transition" id="nav-link-anchor">Anchor</a>
+      <a href="calculator.html" class="nav-transition" id="nav-link-same">Same</a>
+    `;
+
+    app.setupPageTransitions();
+
+    const testLink = document.getElementById('nav-link-test');
+    const anchorLink = document.getElementById('nav-link-anchor');
+    const sameLink = document.getElementById('nav-link-same');
+    const curtain = document.getElementById('transition-curtain');
+
+    // Click same page link (should do nothing / return early)
+    sameLink.dispatchEvent(new Event('click'));
+    expect(window.location.href).toBe('');
+
+    // Click anchor link (should do nothing / return early)
+    anchorLink.dispatchEvent(new Event('click'));
+    expect(window.location.href).toBe('');
+
+    // Click external link (should trigger animation slide-in and redirect after 1500ms)
+    testLink.dispatchEvent(new Event('click'));
+    expect(curtain.classList.contains('slide-in')).toBe(true);
+
+    vi.advanceTimersByTime(1500);
+    expect(window.location.href).toBe('tasks.html');
+
+    // Test branch when curtain is missing
+    document.getElementById('transition-curtain')?.remove();
+    app.setupPageTransitions();
+    testLink.dispatchEvent(new Event('click'));
+    expect(window.location.href).toBe('tasks.html');
+
+    // Restore location and timers
+    window.location = originalLocation;
+    vi.useRealTimers();
+  });
+
+  test('DOMContentLoaded routes to daily actions page if calc-form is missing', () => {
+    // Clear DOM and add only daily actions elements
+    document.body.innerHTML = `
+      <div id="base-score">0.00 tonnes / year</div>
+      <div id="offset-amount">0.00 kg CO2</div>
+      <div id="net-score">0.00 tonnes / year</div>
+      <div id="daily-challenge-container"></div>
+    `;
+
+    // Dispatch DOMContentLoaded on document to trigger listener
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    // Verify setupDailyActionsPage ran and initialized values
+    expect(document.getElementById('base-score').textContent).toBe("0.00 tonnes / year");
+  });
+
+  test('DOMContentLoaded routes to calculator page if calc-form is present', () => {
+    // Setup required DOM elements for DOMContentLoaded router
+    document.body.innerHTML = `
+      <form id="calc-form">
+        <input type="range" id="car-km" min="0" max="1000" value="0">
+        <span id="car-km-val">0 km</span>
+        <input type="range" id="transit-km" min="0" max="500" value="0">
+        <span id="transit-km-val">0 km</span>
+        <input type="range" id="flights-hours" min="0" max="100" value="0">
+        <span id="flights-hours-val">0 hours</span>
+        <input type="range" id="electricity-kwh" min="0" max="1000" value="0">
+        <span id="electricity-kwh-val">0 kWh</span>
+        <input type="range" id="clean-energy-pct" min="0" max="100" value="0">
+        <span id="clean-energy-pct-val">0%</span>
+        <select id="food-source">
+          <option value="balanced">Balanced</option>
+        </select>
+        <button id="download-report-btn">Print</button>
+      </form>
+      <div id="status-badge" class="status-indicator-badge">PRISTINE</div>
+      <div id="footprint-wrapper">
+        <svg id="footprint-svg" viewBox="0 0 100 135">
+          <g id="footprint-group" class="state-pristine"></g>
+        </svg>
+        <div id="visual-overlay" class="visual-effects-overlay"></div>
+      </div>
+      <div id="score-num">0.00</div>
+      <div id="comparison-text">Start adjusting inputs...</div>
+      <div class="wizard-panel"></div>
+      <span class="step-indicator" data-step="1"></span>
+      <button class="next-step-btn">Next</button>
+      <button class="prev-step-btn">Prev</button>
+      <button class="finish-wizard-btn">Finish</button>
+    `;
+
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    // It should successfully run routing and setup
+    expect(document.getElementById('score-num').textContent).toBe("7.30");
+  });
+
+  test('renderDailyChallenge handles missing day by falling back to Monday challenge', () => {
+    const originalGetDay = Date.prototype.getDay;
+    Date.prototype.getDay = () => 8; // Invalid day to force fallback
+
+    // Setup results in storage so setupDailyActionsPage doesn't early return
+    const initialResults = {
+      totalScore: 5.0,
+      sectors: { transport: 1.0, energy: 1.0, diet: 1.5, waste: 1.5 },
+      hasInteracted: true
+    };
+    global.localStorage.setItem('greenly_calculatorResults', JSON.stringify(initialResults));
+
+    app.setupDailyActionsPage();
+    const container = document.getElementById('daily-challenge-container');
+    expect(container.innerHTML).toContain("Meat-Free Monday");
+
+    Date.prototype.getDay = originalGetDay;
+  });
+
+  test('updateStanding handles null challenge parameter correctly', () => {
+    // Setup inputs
+    document.getElementById('task-travel').checked = true;
+    app.updateStanding(10.0, null);
+
+    // Verify it updates standing without errors
+    expect(document.getElementById('net-score').textContent).toContain("tonnes / year");
+  });
+
+  test('syncPrintCategory early returns if elements are missing from DOM', () => {
+    // Call with nonexistent sector ID
+    expect(() => app.syncPrintCategory('nonexistent-id', 5.0, 'transport')).not.toThrow();
   });
 });

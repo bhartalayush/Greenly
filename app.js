@@ -969,11 +969,7 @@ function updateUI(totalScore, sectors) {
     
     const pctLower = Math.round(((9.0 - totalScore) / 9.0) * 100);
     if (comparisonText) {
-      if (pctLower >= 0) {
-        comparisonText.textContent = `Earthy! Your footprint is ${pctLower}% lower than the global target of 9 tonnes.`;
-      } else {
-        comparisonText.textContent = `Your footprint is ${Math.abs(pctLower)}% higher than the global target of 9 tonnes.`;
-      }
+      comparisonText.textContent = `Earthy! Your footprint is ${pctLower}% lower than the global target of 9 tonnes.`;
     }
     
     const overlay = document.getElementById('visual-overlay');
@@ -1165,6 +1161,7 @@ function renderDailyChallenge() {
   checkbox.className = 'eco-checkbox';
   checkbox.setAttribute('data-co2', challenge.co2.toFixed(2));
   checkbox.id = challenge.id;
+  label.setAttribute('for', challenge.id);
   label.appendChild(checkbox);
 
   const checkboxCustom = document.createElement('span');

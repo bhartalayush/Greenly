@@ -1303,10 +1303,21 @@ a.text-decoration-none {
   margin-bottom: 4px;
   display: block;
 }
-.ngo-body h3 {
+.ngo-body h2 {
   font-size: 1.15rem;
   color: var(--color-green-dark);
   margin-bottom: 6px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .ngo-desc {
   font-size: 0.8rem;

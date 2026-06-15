@@ -21,7 +21,7 @@
   <!-- Swaying Falling Leaf Page Transition Curtain -->
   <div id="transition-curtain" class="transition-curtain" aria-hidden="true">
     <div class="falling-leaf-container">
-      <svg class="falling-leaf-svg" viewBox="0 0 100 100">
+      <svg class="falling-leaf-svg" viewBox="0 0 100 100" aria-hidden="true">
         <path d="M50,15 C65,35 65,65 50,85 C35,65 35,35 50,15 Z" fill="#1E382A"/>
         <path d="M50,15 L50,85" stroke="#FAF6EE" stroke-width="1"/>
       </svg>
@@ -96,24 +96,24 @@
             </div>
 
             <div class="input-group">
-              <label>Car Engine Type</label>
-              <div class="radio-grid">
-                <label class="radio-card">
-                  <input type="radio" name="engine-type" value="gasoline" checked>
+              <label id="engine-type-label">Car Engine Type</label>
+              <div class="radio-grid" role="radiogroup" aria-labelledby="engine-type-label">
+                <label class="radio-card" for="engine-gasoline">
+                  <input type="radio" id="engine-gasoline" name="engine-type" value="gasoline" checked>
                   <span class="radio-content">
                     <span class="radio-title">Gasoline / Diesel</span>
                     <span class="radio-desc">Fossil fuel baseline</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="engine-type" value="hybrid">
+                <label class="radio-card" for="engine-hybrid">
+                  <input type="radio" id="engine-hybrid" name="engine-type" value="hybrid">
                   <span class="radio-content">
                     <span class="radio-title">Hybrid</span>
                     <span class="radio-desc">Increased efficiency</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="engine-type" value="electric">
+                <label class="radio-card" for="engine-electric">
+                  <input type="radio" id="engine-electric" name="engine-type" value="electric">
                   <span class="radio-content">
                     <span class="radio-title">Electric</span>
                     <span class="radio-desc">Zero direct emissions</span>
@@ -167,24 +167,24 @@
             </div>
 
             <div class="input-group">
-              <label>Heating Source</label>
-              <div class="radio-grid">
-                <label class="radio-card">
-                  <input type="radio" name="heating-source" value="gas" checked>
+              <label id="heating-source-label">Heating Source</label>
+              <div class="radio-grid" role="radiogroup" aria-labelledby="heating-source-label">
+                <label class="radio-card" for="heating-gas">
+                  <input type="radio" id="heating-gas" name="heating-source" value="gas" checked>
                   <span class="radio-content">
                     <span class="radio-title">Natural Gas</span>
                     <span class="radio-desc">Fossil fuel heating</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="heating-source" value="electric">
+                <label class="radio-card" for="heating-electric">
+                  <input type="radio" id="heating-electric" name="heating-source" value="electric">
                   <span class="radio-content">
                     <span class="radio-title">Heat Pump</span>
                     <span class="radio-desc">Electric powered</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="heating-source" value="biomass">
+                <label class="radio-card" for="heating-biomass">
+                  <input type="radio" id="heating-biomass" name="heating-source" value="biomass">
                   <span class="radio-content">
                     <span class="radio-title">Biomass / Wood</span>
                     <span class="radio-desc">Carbon-neutral cycle</span>
@@ -205,31 +205,31 @@
             <p class="wizard-panel-desc">Beef processing and imported foods demand heavy resources.</p>
 
             <div class="input-group">
-              <label>Primary Food Selections</label>
-              <div class="radio-grid vertical">
-                <label class="radio-card">
-                  <input type="radio" name="diet-type" value="meat-heavy" checked>
+              <label id="diet-type-label">Primary Food Selections</label>
+              <div class="radio-grid vertical" role="radiogroup" aria-labelledby="diet-type-label">
+                <label class="radio-card" for="diet-meat-heavy">
+                  <input type="radio" id="diet-meat-heavy" name="diet-type" value="meat-heavy" checked>
                   <span class="radio-content">
                     <span class="radio-title">Heavy Meat Eater</span>
                     <span class="radio-desc">Regularly consume beef, pork, lamb, and poultry</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="diet-type" value="meat-light">
+                <label class="radio-card" for="diet-meat-light">
+                  <input type="radio" id="diet-meat-light" name="diet-type" value="meat-light">
                   <span class="radio-content">
                     <span class="radio-title">Average / Low-Meat</span>
                     <span class="radio-desc">Limit red meat, poultry/fish prioritized</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="diet-type" value="vegetarian">
+                <label class="radio-card" for="diet-vegetarian">
+                  <input type="radio" id="diet-vegetarian" name="diet-type" value="vegetarian">
                   <span class="radio-content">
                     <span class="radio-title">Vegetarian</span>
                     <span class="radio-desc">No meat, consume dairy, eggs, and cheese</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="diet-type" value="vegan">
+                <label class="radio-card" for="diet-vegan">
+                  <input type="radio" id="diet-vegan" name="diet-type" value="vegan">
                   <span class="radio-content">
                     <span class="radio-title">Vegan</span>
                     <span class="radio-desc">100% plant-based food structures</span>
@@ -239,7 +239,7 @@
             </div>
 
             <div class="input-group">
-              <label>Food Transport / Sourcing</label>
+              <label for="food-source">Food Transport / Sourcing</label>
               <div class="select-wrapper">
                 <select id="food-source" class="select-input">
                   <option value="mostly-global">Mostly global / imported foods</option>
@@ -261,24 +261,24 @@
             <p class="wizard-panel-desc">New product manufacturing and landfill practices dictating waste ratios.</p>
 
             <div class="input-group">
-              <label>Shopping frequency</label>
-              <div class="radio-grid">
-                <label class="radio-card">
-                  <input type="radio" name="lifestyle" value="high" checked>
+              <label id="lifestyle-label">Shopping frequency</label>
+              <div class="radio-grid" role="radiogroup" aria-labelledby="lifestyle-label">
+                <label class="radio-card" for="lifestyle-high">
+                  <input type="radio" id="lifestyle-high" name="lifestyle" value="high" checked>
                   <span class="radio-content">
                     <span class="radio-title">Frequent</span>
                     <span class="radio-desc">Buy new clothes & electronics often</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="lifestyle" value="moderate">
+                <label class="radio-card" for="lifestyle-moderate">
+                  <input type="radio" id="lifestyle-moderate" name="lifestyle" value="moderate">
                   <span class="radio-content">
                     <span class="radio-title">Moderate</span>
                     <span class="radio-desc">Essentials with occasional purchases</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="lifestyle" value="minimal">
+                <label class="radio-card" for="lifestyle-minimal">
+                  <input type="radio" id="lifestyle-minimal" name="lifestyle" value="minimal">
                   <span class="radio-content">
                     <span class="radio-title">Minimalist</span>
                     <span class="radio-desc">Second-hand items, repair over replace</span>
@@ -288,24 +288,24 @@
             </div>
 
             <div class="input-group">
-              <label>Recycling & Composting</label>
-              <div class="radio-grid">
-                <label class="radio-card">
-                  <input type="radio" name="recycling" value="none">
+              <label id="recycling-label">Recycling & Composting</label>
+              <div class="radio-grid" role="radiogroup" aria-labelledby="recycling-label">
+                <label class="radio-card" for="recycling-none">
+                  <input type="radio" id="recycling-none" name="recycling" value="none">
                   <span class="radio-content">
                     <span class="radio-title">Minimal</span>
                     <span class="radio-desc">Direct disposal to landfill bins</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="recycling" value="some" checked>
+                <label class="radio-card" for="recycling-some">
+                  <input type="radio" id="recycling-some" name="recycling" value="some" checked>
                   <span class="radio-content">
                     <span class="radio-title">Basic</span>
                     <span class="radio-desc">Separate clean tins, paper, and plastic</span>
                   </span>
                 </label>
-                <label class="radio-card">
-                  <input type="radio" name="recycling" value="full">
+                <label class="radio-card" for="recycling-full">
+                  <input type="radio" id="recycling-full" name="recycling" value="full">
                   <span class="radio-content">
                     <span class="radio-title">Dedicated</span>
                     <span class="radio-desc">Recycle and compost organic food scraps</span>
@@ -631,7 +631,7 @@
       
       <div class="summary-modal-footer">
         <button type="button" id="download-report-btn" class="btn btn-primary btn-large">
-          <svg class="icon-download" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;">
+          <svg class="icon-download" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px;" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
           </svg>
           Download PDF Audit Report
